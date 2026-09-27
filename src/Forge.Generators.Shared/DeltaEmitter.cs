@@ -833,7 +833,7 @@ internal static class DeltaEmitter
             builder.AppendLine("        {");
             builder.Append("            property").Append(index).Append("Change = global::Forge.Delta.ValueChange<")
                 .Append(propertyType).Append(">.Create(property").Append(index)
-                .Append("Before, property").Append(index).AppendLine("After);");
+                .Append("Before!, property").Append(index).AppendLine("After!);");
             builder.AppendLine("        }");
             return;
         }
