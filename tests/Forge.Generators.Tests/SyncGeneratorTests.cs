@@ -307,7 +307,7 @@ public sealed class SyncGeneratorTests
         StringAssert.Contains(syncSource, "ItemDelta.AreEquivalent(currentItem, desiredItem)");
         Assert.IsFalse(syncSource.Contains("desiredByKey", StringComparison.Ordinal));
         Assert.AreEqual(
-            1,
+            2,
             syncSource.Split(
                 "for (var index = 0; index < desired.Count; index++)",
                 StringSplitOptions.None).Length - 1);
