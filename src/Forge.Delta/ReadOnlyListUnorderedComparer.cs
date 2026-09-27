@@ -58,7 +58,8 @@ public sealed class ReadOnlyListUnorderedComparer<T> : IEqualityComparer<IReadOn
         var xor = 0;
         for (var index = 0; index < obj.Count; index++)
         {
-            var hash = obj[index] is null ? 0 : comparer.GetHashCode(obj[index]);
+            var value = obj[index];
+            var hash = value is null ? 0 : comparer.GetHashCode(value);
             sum = unchecked(sum + hash);
             xor ^= hash;
         }
