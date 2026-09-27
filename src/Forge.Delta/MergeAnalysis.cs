@@ -6,6 +6,12 @@ namespace Forge.Delta;
 public sealed class MergeAnalysis<TDelta>
     where TDelta : IDelta
 {
+    /// <summary>
+    /// Creates a three-way merge analysis result.
+    /// </summary>
+    /// <param name="currentDelta">Changes from baseline to current state.</param>
+    /// <param name="desiredDelta">Changes from baseline to desired state.</param>
+    /// <param name="conflicts">Semantic conflicts detected between both branches.</param>
     public MergeAnalysis(TDelta currentDelta, TDelta desiredDelta, IReadOnlyList<MergeConflict> conflicts)
     {
         ArgumentNullException.ThrowIfNull(currentDelta);

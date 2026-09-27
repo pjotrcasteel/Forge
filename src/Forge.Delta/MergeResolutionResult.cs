@@ -18,7 +18,18 @@ public sealed class MergeResolutionResult
         UnresolvedConflicts = Array.AsReadOnly(unresolvedConflicts.ToArray());
     }
 
+    /// <summary>
+    /// Gets the resolved semantic values that form the merge patch.
+    /// </summary>
     public IReadOnlyList<ResolvedMergeValue> Values { get; }
+
+    /// <summary>
+    /// Gets conflicts for which no resolution policy supplied a value.
+    /// </summary>
     public IReadOnlyList<MergeConflict> UnresolvedConflicts { get; }
+
+    /// <summary>
+    /// Gets whether every semantic conflict has been resolved.
+    /// </summary>
     public bool IsFullyResolved => UnresolvedConflicts.Count == 0;
 }
