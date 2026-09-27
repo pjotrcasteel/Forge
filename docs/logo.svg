@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Forge">
+  <defs>
+    <linearGradient id="forge-g" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffb454"/>
+      <stop offset=".52" stop-color="#ff7a45"/>
+      <stop offset="1" stop-color="#8ab4f8"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#12151a"/>
+  <path d="M18 16h30v8H27v8h17v8H27v10h-9V16Z" fill="none" stroke="url(#forge-g)" stroke-width="3.2" stroke-linejoin="round"/>
+  <path d="M16 53h34" stroke="#3a414d" stroke-width="3" stroke-linecap="round"/>
+  <path d="M45 14l4 4-4 4" fill="none" stroke="#ffb454" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
