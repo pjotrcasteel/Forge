@@ -22,6 +22,7 @@ analyzers/dotnet/cs/Forge.Delta.Generators.dll
 README.md
 CHANGELOG.md
 LICENSE
+forge-icon.png
 ```
 
 The Roslyn generator is an analyzer asset, not a runtime library, and Roslyn assemblies must never be embedded in the package.
@@ -39,6 +40,7 @@ analyzers/dotnet/cs/Forge.Sync.Generators.dll
 README.md
 CHANGELOG.md
 LICENSE
+forge-icon.png
 ```
 
 Installing only `Forge.Sync` must make both generated Sync and generated Delta APIs available to the consumer through normal transitive package restore.
@@ -89,6 +91,8 @@ Each consumer uses its own empty `NUGET_PACKAGES` directory so a developer/globa
 - package ID and version;
 - MIT license expression;
 - package-specific README;
+- canonical project URL and GitHub repository metadata;
+- `forge-icon.png` package icon metadata and payload;
 - runtime DLL + XML documentation;
 - generator placement under `analyzers/dotnet/cs`;
 - absence of Roslyn DLLs and source files;
