@@ -46,7 +46,7 @@ var delta = CustomerDelta.Between(before, after);
 if (delta.EmailChange.HasChanged)
 {
     Console.WriteLine(
-        $"${delta.EmailChange.Before} -> ${delta.EmailChange.After}");
+        $"{delta.EmailChange.Before} -> {delta.EmailChange.After}");
 }`},
 sync:{title:"C# · Forge.Sync",noteTitle:"Use Replace for complete desired state.",noteBody:"Choose Upsert explicitly when omitted current items must be preserved.",link:"https://github.com/pjotrcasteel/Forge#your-first-reconciliation",code:`dotnet add package Forge.Sync --version 1.20.0
 
