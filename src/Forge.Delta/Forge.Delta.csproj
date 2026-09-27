@@ -27,7 +27,7 @@
   <ItemGroup>
     <None Include="../../packaging/Forge.Delta.README.md" Pack="true" PackagePath="README.md" />
     <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
-    <None Include="../../LICENSE" Pack="true" PackagePath="LICENSE" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
     <None Include="../Forge.Delta.Generators/bin/$(Configuration)/netstandard2.0/Forge.Delta.Generators.dll"
           Pack="true"
           PackagePath="analyzers/dotnet/cs"
