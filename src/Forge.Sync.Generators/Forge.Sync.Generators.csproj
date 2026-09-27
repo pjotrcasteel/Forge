@@ -11,6 +11,10 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="../Forge.Generators.Shared/DeltaEmitter.cs" Link="Shared/DeltaEmitter.cs" />
     <Compile Include="../Forge.Generators.Shared/SymbolFormatting.cs" Link="Shared/SymbolFormatting.cs" />
   </ItemGroup>

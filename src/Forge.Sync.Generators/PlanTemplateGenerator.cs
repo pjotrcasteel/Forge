@@ -107,9 +107,26 @@ public sealed class PlanTemplateGenerator : IIncrementalGenerator
             .OfType<TypeDeclarationSyntax>()
             .Any(type => type.Modifiers.Any(static modifier => modifier.Text == "partial"));
 
-    private sealed record TemplateTarget(
-        INamedTypeSymbol Template,
-        ITypeSymbol? ContextType,
-        ITypeSymbol? OperationType,
-        ITypeSymbol? KeyType);
+    private sealed class TemplateTarget
+    {
+        public TemplateTarget(
+            INamedTypeSymbol template,
+            ITypeSymbol? contextType,
+            ITypeSymbol? operationType,
+            ITypeSymbol? keyType)
+        {
+            Template = template;
+            ContextType = contextType;
+            OperationType = operationType;
+            KeyType = keyType;
+        }
+
+        public INamedTypeSymbol Template { get; }
+
+        public ITypeSymbol? ContextType { get; }
+
+        public ITypeSymbol? OperationType { get; }
+
+        public ITypeSymbol? KeyType { get; }
+    }
 }
