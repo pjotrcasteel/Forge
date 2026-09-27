@@ -5,6 +5,9 @@ import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
 
+PROJECT_URL = "https://pjotrcasteel.github.io/Forge/"
+REPOSITORY_URL = "https://github.com/pjotrcasteel/Forge"
+
 
 def fail(message: str) -> None:
     print(f"ERROR: {message}")
@@ -67,6 +70,17 @@ def verify_metadata(nuspec: ET.Element, package_id: str, version: str) -> None:
         fail(f"{package_id} must have a package description")
     if child_text(data, "readme") != "README.md":
         fail(f"{package_id} must declare README.md as its package README")
+    if child_text(data, "projectUrl") != PROJECT_URL:
+        fail(f"{package_id} must use the canonical Forge project URL")
+    if child_text(data, "icon") != "forge-icon.png":
+        fail(f"{package_id} must declare forge-icon.png as its package icon")
+
+    repository_elements = [element for element in data if local_name(element) == "repository"]
+    if len(repository_elements) != 1:
+        fail(f"{package_id} must contain exactly one repository declaration")
+    repository = repository_elements[0]
+    if repository.attrib.get("type") != "git" or repository.attrib.get("url") != REPOSITORY_URL:
+        fail(f"{package_id} must point repository metadata at {REPOSITORY_URL}")
     require_license_acceptance = child_text(data, "requireLicenseAcceptance")
     if require_license_acceptance is not None and require_license_acceptance.lower() != "false":
         fail(f"{package_id} must not require license acceptance")
@@ -97,6 +111,7 @@ def verify_main_package(
             "README.md",
             "CHANGELOG.md",
             "LICENSE",
+            "forge-icon.png",
             f"lib/net10.0/{runtime_assembly}.dll",
             f"lib/net10.0/{runtime_assembly}.xml",
             f"analyzers/dotnet/cs/{generator_assembly}.dll",
