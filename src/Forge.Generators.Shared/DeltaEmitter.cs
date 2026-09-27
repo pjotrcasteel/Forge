@@ -368,15 +368,15 @@ internal static class DeltaEmitter
             if (nestedSyncTypeName is not null)
             {
                 builder.Append("            if (").Append(nestedSyncTypeName).Append(".GetKey(property")
-                    .Append(index).Append("Before.Value) != ").Append(nestedSyncTypeName)
-                    .Append(".GetKey(property").Append(index).AppendLine("After.Value))");
+                    .Append(index).Append("Before.GetValueOrDefault()) != ").Append(nestedSyncTypeName)
+                    .Append(".GetKey(property").Append(index).AppendLine("After.GetValueOrDefault()))");
                 builder.AppendLine("            {");
                 builder.AppendLine("                return false;");
                 builder.AppendLine("            }");
             }
 
             builder.Append("            if (!").Append(nestedDeltaTypeName).Append(".AreEquivalent(property")
-                .Append(index).Append("Before.Value, property").Append(index).AppendLine("After.Value))");
+                .Append(index).Append("Before.GetValueOrDefault(), property").Append(index).AppendLine("After.GetValueOrDefault()))");
             builder.AppendLine("            {");
             builder.AppendLine("                return false;");
             builder.AppendLine("            }");
@@ -545,7 +545,7 @@ internal static class DeltaEmitter
         }
 
         builder.Append("        return new global::Forge.Delta.MergeAnalysis<").Append(deltaName)
-            .AppendLine(">(currentDelta, desiredDelta, conflicts ?? global::System.Array.Empty<global::Forge.Delta.MergeConflict>());");
+            .AppendLine(">(currentDelta, desiredDelta, conflicts is null ? global::System.Array.Empty<global::Forge.Delta.MergeConflict>() : conflicts.AsReadOnly());");
         builder.AppendLine("    }");
     }
 
@@ -789,15 +789,15 @@ internal static class DeltaEmitter
             builder.AppendLine("        {");
             builder.Append("            property").Append(index).Append("Delta = ")
                 .Append(nestedDeltaTypeName).Append(".Between(property").Append(index)
-                .Append("Before.Value, property").Append(index).AppendLine("After.Value);");
+                .Append("Before.GetValueOrDefault(), property").Append(index).AppendLine("After.GetValueOrDefault());");
             builder.Append("            property").Append(index).Append("Change = global::Forge.Delta.ValueChange<")
                 .Append(propertyType).Append(">.FromComparison(property").Append(index)
                 .Append("Before, property").Append(index).Append("After, ");
             EmitNestedChangedExpression(
                 builder,
                 nestedSyncTypeName,
-                "property" + index + "Before.Value",
-                "property" + index + "After.Value",
+                "property" + index + "Before.GetValueOrDefault()",
+                "property" + index + "After.GetValueOrDefault()",
                 "property" + index + "Delta.HasChanges");
             builder.AppendLine(");");
             builder.AppendLine("        }");
@@ -817,7 +817,7 @@ internal static class DeltaEmitter
             builder.AppendLine("        {");
             builder.Append("            property").Append(index).Append("Delta = ")
                 .Append(nestedDeltaTypeName).Append(".Between(property").Append(index)
-                .Append("Before, property").Append(index).AppendLine("After);");
+                .Append("Before!, property").Append(index).AppendLine("After!);");
             builder.Append("            property").Append(index).Append("Change = global::Forge.Delta.ValueChange<")
                 .Append(propertyType).Append(">.FromComparison(property").Append(index)
                 .Append("Before, property").Append(index).Append("After, ");
