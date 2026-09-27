@@ -1,41 +1,78 @@
-# Forge
+# Forge 1.20.0
 
-**Compile-time state transition tooling for .NET 10.**
+> Strongly typed state transition planning for .NET 10.
+>
+> **Website:** https://pjotrcasteel.github.io/Forge/ · **Forge.Sync:** https://www.nuget.org/packages/Forge.Sync · **Forge.Delta:** https://www.nuget.org/packages/Forge.Delta · **Source:** https://github.com/pjotrcasteel/Forge
 
-Forge turns current state and desired state into typed, explainable transition plans while keeping persistence, transports, workflow policy and execution in the application.
+Forge turns **current state + desired state** into explicit, typed transition plans while persistence, transport, workflow policy, authorization, and execution remain in your application.
 
-The first stable family contains:
+Use **Forge.Delta** when the question is _“what changed inside this object?”_  
+Use **Forge.Sync** when the question is _“how does the state I have become the state I want?”_
 
-- **Forge.Delta** — semantic object differences, nested changes, three-way conflict analysis and reversible deltas.
-- **Forge.Sync** — keyed reconciliation, partial upserts, nested/cross-type/streaming/topology reconciliation and portable execution planning.
+Normal generated Delta/Sync hot paths use direct property access and dictionaries: no runtime reflection, dynamic proxies, hidden I/O, or mandatory dependency injection.
 
-Normal generated Delta/Sync hot paths use direct property access and dictionaries: no reflection, no dynamic proxies and no hidden I/O.
+<a id="why"></a>
 
-## Install
+## When Forge is useful
+
+Forge is a strong fit when application correctness depends on one or more of these problems:
+
+- semantic object change detection;
+- desired-state reconciliation;
+- complete replacement versus partial upsert semantics;
+- cross-type current/desired models;
+- dependency-aware create/update/delete ordering;
+- graph or topology transitions;
+- plan validation before side effects begin;
+- stale-plan detection after a delay or approval step;
+- incremental or execution-aware replanning;
+- portable, reviewable plan descriptions.
+
+For a small CRUD update where normal equality and one direct database write are enough, ordinary application code is usually the simpler tool.
+
+<a id="five-minute-start"></a>
+
+## Five-minute start
+
+Choose the smallest package that answers your first question.
+
+For semantic object differences:
 
 ```bash
-dotnet add package Forge.Delta
-# or, for reconciliation (includes Forge.Delta):
-dotnet add package Forge.Sync
+dotnet add package Forge.Delta --version 1.20.0
 ```
 
-## Delta
+For desired-state reconciliation and planning:
+
+```bash
+dotnet add package Forge.Sync --version 1.20.0
+```
+
+Installing `Forge.Sync` also brings in `Forge.Delta`.
+
+<a id="your-first-delta"></a>
+
+## Your first Delta
 
 ```csharp
 using Forge.Delta;
 
 [GenerateDelta]
-public sealed record Customer(Guid Id, string Name, string? Email);
+public sealed record Customer(
+    Guid Id,
+    string Name,
+    string? Email);
 
 var delta = CustomerDelta.Between(before, after);
 
 if (delta.EmailChange.HasChanged)
 {
-    Console.WriteLine($"{delta.EmailChange.Before} -> {delta.EmailChange.After}");
+    Console.WriteLine(
+        $"{delta.EmailChange.Before} -> {delta.EmailChange.After}");
 }
 ```
 
-Generated Delta also supports:
+The generated API also exposes:
 
 ```csharp
 CustomerDelta.AreEquivalent(before, after);
@@ -44,25 +81,22 @@ CustomerDelta.AnalyzeMerge(baseline, current, desired);
 delta.Invert();
 ```
 
-### Explicit semantics
+Use `[DeltaIgnore]` for bookkeeping state that should not participate, `[DeltaComparer]` for domain-specific equality, and explicit collection comparers when list/set/dictionary semantics matter.
 
-Forge supports:
+Forge does not recursively guess arbitrary object-graph or collection semantics.
 
-- `[DeltaIgnore]` for non-domain bookkeeping state;
-- `[DeltaComparer]` for domain equality;
-- nested generated Delta state with flattened paths such as `Address.City`;
-- external/unannotated models through `[GenerateDeltaProfile]`;
-- explicit sequence, unordered, set, dictionary and keyed-list collection comparers.
+<a id="your-first-reconciliation"></a>
 
-Forge does not guess collection semantics or recursively walk arbitrary object graphs.
-
-## Sync
+## Your first reconciliation
 
 ```csharp
 using Forge.Sync;
 
 [GenerateSync(nameof(OrderItem.Id))]
-public sealed record OrderItem(string Id, string Product, int Quantity);
+public sealed record OrderItem(
+    string Id,
+    string Product,
+    int Quantity);
 
 var plan = OrderItemSync.Plan(current, desired);
 
@@ -72,19 +106,22 @@ plan.Removed;
 plan.Unchanged;
 ```
 
-Every update carries its generated Delta:
+Every update carries its generated typed Delta:
 
 ```csharp
 foreach (var update in plan.Updated)
 {
     foreach (var change in update.Delta.Changes)
     {
-        Console.WriteLine($"{update.Key}: {change.Path}: {change.Before} -> {change.After}");
+        Console.WriteLine(
+            $"{update.Key}: {change.Path}: {change.Before} -> {change.After}");
     }
 }
 ```
 
-### Replace vs partial Upsert
+<a id="replace-upsert"></a>
+
+## Replace versus partial Upsert
 
 Complete desired state is the default:
 
@@ -95,66 +132,36 @@ var replace = OrderItemSync.Plan(current, desired);
 For partial input where omitted current items must remain untouched:
 
 ```csharp
-var upsert = OrderItemSync.Plan(current, payload, SyncMode.Upsert);
+var upsert = OrderItemSync.Plan(
+    current,
+    payload,
+    SyncMode.Upsert);
 
 upsert.Preserved;
 ```
 
-The distinction is explicit so a partial update payload cannot accidentally become a delete plan.
+This distinction is explicit so a partial payload cannot accidentally become a deletion plan.
 
-### Nested reconciliation
+<a id="choose-capability"></a>
 
-```csharp
-[GenerateSync(nameof(Service.Id))]
-public sealed record Service(
-    string Id,
-    [property: SyncNested]
-    IReadOnlyList<Characteristic> Characteristics);
-```
+## Pick the capability by the planning problem
 
-Parent classification includes child changes and generated `PlanCharacteristics(...)` helpers expose the child plan.
+| Planning problem | Start with |
+| --- | --- |
+| What changed inside one object? | `Forge.Delta` |
+| Which keyed items were added/updated/removed? | generated `Forge.Sync` |
+| Current and desired use different CLR types | cross-type reconciliation |
+| More than one legitimate identity route exists | ordered fallback identity |
+| Operations depend on other operations | `DependencyPlanner` |
+| Nodes and relationships change together | `TopologySync` |
+| A plan crosses an approval/outbox boundary | portable manifest + digest |
+| Reality may change before execution | manifest preconditions |
+| A previous plan is already partly executing | execution-aware replanning |
+| Several plans form one release/change unit | reconciliation batch / composite topology |
 
-## Cross-type reconciliation
+The detailed contracts live in **[docs/API_CONTRACT.md](docs/API_CONTRACT.md)**, **[docs/DESIGN.md](docs/DESIGN.md)**, and **[docs/RECONCILIATION.md](docs/RECONCILIATION.md)**.
 
-Current and desired state do not need to use the same CLR type:
-
-```csharp
-var definition = new CrossSyncDefinition<ServiceCharacteristicNode, CharacteristicModel, string, CharacteristicDelta>(
-    static node => node.CharacteristicId,
-    static model => model.CharacteristicId,
-    CharacteristicDelta.AreEquivalent,
-    CharacteristicDelta.Between,
-    SyncMode.Upsert,
-    StringComparer.OrdinalIgnoreCase);
-
-var plan = CrossSync.Plan(existing, incoming, definition);
-```
-
-Cross-type plans support operation classification, portable manifests and compensation inversion too.
-
-### Ordered fallback identity
-
-Some systems have more than one legitimate identity route, for example a persisted instance ID first and a business key as fallback. Model that explicitly instead of normalizing away the distinction:
-
-```csharp
-var definition = new CrossSyncMatchDefinition<StoredCharacteristic, IncomingCharacteristic, string, CharacteristicDelta>(
-    static current => new SyncIdentity<string>(
-        $"id:{current.Id}",
-        [$"characteristic:{current.CharacteristicId}"]),
-    static desired => desired.Id == Guid.Empty
-        ? new SyncIdentity<string>($"characteristic:{desired.CharacteristicId}")
-        : new SyncIdentity<string>(
-            $"id:{desired.Id}",
-            [$"characteristic:{desired.CharacteristicId}"]),
-    CharacteristicDelta.AreEquivalent,
-    CharacteristicDelta.Between,
-    SyncMode.Replace,
-    StringComparer.OrdinalIgnoreCase);
-
-var plan = CrossSync.Plan(current, desired, definition);
-```
-
-Matching tries the canonical key first and only then the fallback keys in order. If a fallback identity resolves to multiple current items, Forge fails before producing an ambiguous plan. Matched results keep the current item's canonical identity; additions use the desired item's canonical identity.
+<a id="dependency-aware-planning"></a>
 
 ## Dependency-aware planning
 
@@ -166,106 +173,20 @@ var dependencyPlan = DependencyPlanner.Plan(
 
 foreach (var wave in dependencyPlan.CreateWaves)
 {
-    // Items in one wave can execute after all previous waves complete.
+    // Items in this wave can execute after all previous waves complete.
 }
 
 foreach (var wave in dependencyPlan.DeleteWaves)
 {
-    // Dependent-first reverse order for deletion/deprovisioning.
+    // Dependent-first order for deletion/deprovisioning.
 }
 ```
 
 Cycles are surfaced before execution.
 
-## Typed operation planning
+<a id="portable-plans"></a>
 
-Forge can translate structural changes to application-defined operations without executing them:
-
-```csharp
-var operations = SyncOperationPlanner.Classify(
-    plan,
-    static _ => Operation.Create,
-    static update => update.Delta.ProductChange.HasChanged
-        ? Operation.Replace
-        : Operation.Update,
-    static _ => Operation.Delete);
-```
-
-## Streaming reconciliation
-
-Large ordered sources can be reconciled without materializing both complete datasets:
-
-```csharp
-var streamDefinition = new CrossSyncDefinition<Resource, Resource, string, ResourceDelta>(
-    static item => item.Id,
-    static item => item.Id,
-    ResourceDelta.AreEquivalent,
-    ResourceDelta.Between);
-
-await foreach (var step in StreamingSync.PlanOrderedAsync(
-                   currentStream,
-                   desiredStream,
-                   streamDefinition,
-                   StringComparer.Ordinal,
-                   cancellationToken))
-{
-    // Added / Updated / Removed / Unchanged / Preserved
-}
-```
-
-Both sources must be strictly ordered by logical key. Cancellation is explicit.
-
-## Topology reconciliation
-
-Forge can reconcile graph nodes and relationships as one validated transition:
-
-```csharp
-var topology = TopologySync.Plan(
-    currentNodes,
-    desiredNodes,
-    currentEdges,
-    desiredEdges,
-    nodeDefinition,
-    edgeDefinition);
-```
-
-Edges are validated against their snapshot's nodes before reconciliation. The plan exposes graph-safe structural phases:
-
-```text
-RemoveEdges -> RemoveNodes -> AddNodes -> UpdateNodes -> UpdateEdges -> AddEdges
-```
-
-## Three-way conflict analysis
-
-```csharp
-var merge = CustomerDelta.AnalyzeMerge(
-    baseline,
-    current,
-    desired);
-
-if (merge.HasConflicts)
-{
-    foreach (var conflict in merge.Conflicts)
-    {
-        Console.WriteLine(conflict.Path);
-    }
-}
-```
-
-Forge reports semantic same-property conflicts; the application owns resolution policy.
-
-## Reversible transitions
-
-```csharp
-var reverseDelta = delta.Invert();
-var compensation = SyncPlanInverter.Invert(
-    plan,
-    static itemDelta => itemDelta.Invert());
-```
-
-Upsert plans containing preserved state are deliberately rejected as non-reversible because omitted desired state is unknown.
-
-## Portable plans
+## Portable plans and stale-state protection
 
 ```csharp
 var manifest = SyncManifest.Create(
@@ -275,8 +196,6 @@ var manifest = SyncManifest.Create(
 var json = manifest.ToJson();
 var digest = ManifestDigest.ComputeSha256Hex(manifest);
 ```
-
-Portable manifests are versioned JSON-safe descriptions suitable for audit, approval and outbox boundaries. Canonical SHA-256 digesting gives a cross-process identity for the exact plan.
 
 Before executing a delayed plan, validate that reality still matches the state the plan was calculated against:
 
@@ -291,62 +210,55 @@ var preconditions = ManifestPreconditions.Validate(
     snapshot);
 ```
 
-If the state changed meanwhile, Forge reports stale-plan failures rather than silently overwriting newer state.
+Portable manifests are data. Forge does not execute serialized plans as code.
 
-## Batch composition
+<a id="typed-planning"></a>
 
-Multiple heterogeneous manifests can be assessed as one unit:
+## Typed planning through 1.20
 
-```csharp
-var batch = ReconciliationBatch.Create(
-    [
-        new NamedSyncManifest("services", serviceManifest),
-        new NamedSyncManifest("resources", resourceManifest),
-        new NamedSyncManifest("relationships", relationshipManifest)
-    ],
-    [
-        new PlanDependency("resources", "services"),
-        new PlanDependency("relationships", "resources")
-    ]);
+The 1.x feature train extends planning without moving execution into Forge:
 
-var validation = batch.Validate(
-    value => value.TotalOperationCount > 500
-        ? new BatchValidationIssue("LIMIT", "Approval required.")
-        : null);
-```
+- conditional state dependencies;
+- readiness and application-defined blocking reasons;
+- dependency-safe plan slicing;
+- typed provenance and root-cause paths;
+- semantic plan-to-plan Delta;
+- execution-aware replanning;
+- approval scopes;
+- alternative-plan evaluation with application-owned preferences;
+- typed derived facts;
+- lazy scenario matrices;
+- source-generated reusable plan templates;
+- composite topology invariants and dependency ordering.
 
-The application still decides whether and how to execute the batch.
+Applications keep their own identity, state, fact, scope, reason, metric, and violation types. Forge does not require string registries or `Dictionary<string, object>` extension bags on the normal typed planning path.
 
+<a id="boundary"></a>
 
-## 1.9-1.20 typed planning train
+## The execution boundary
 
-Forge 1.20 keeps planning strongly typed while extending the production planning surface:
+Forge calculates, classifies, validates, explains, and simulates transitions.
 
-- **1.9 conditional dependencies** — predecessor state requirements through `IStateCondition<TState>`.
-- **1.10 readiness** — composable typed requirements and application-defined blocking reasons.
-- **1.11 plan slicing** — dependency-safe subsets with explicit direct-vs-required membership.
-- **1.12 provenance** — typed cause/effect graphs and shortest root-cause traces.
-- **1.13 plan Delta** — semantic operation and dependency changes between plan snapshots.
-- **1.14 execution-aware replanning** — pending/running/completed work is handled safely and explicitly.
-- **1.15 approval scopes** — typed structural approval boundaries without authorization logic in Forge.
-- **1.16 alternatives** — consumer-defined plan metrics and preference selection with explicit ties.
-- **1.17 derived facts** — `FactKey<T>` and bounded monotonic typed propagation.
-- **1.18 scenario matrices** — lazy typed Cartesian scenarios and cancellation-aware simulation.
-- **1.19 plan templates** — source-generated typed template instantiation with application-owned build logic.
-- **1.20 composite topology** — cross-topology invariants and one typed dependency order across composed transitions.
+Forge does **not**:
 
-### Type-safety and extension constitution
+- persist data;
+- call HTTP or RPC endpoints;
+- publish messages;
+- perform authorization;
+- scan assemblies for runtime plugins;
+- dynamically compile external expressions;
+- execute a plan.
 
-New planning APIs do not use string operation identities, string state names, or `Dictionary<string, object>` extension bags. Applications keep their own key/state/reason/fact/scope/violation types. Forge extension points are intentionally narrow (`IStateCondition`, readiness providers, slice selectors, execution-state classifiers, approval selectors, evaluators, fact rules, scenario evaluators, and topology invariants).
+That boundary keeps planning deterministic, testable, and infrastructure-independent.
 
-Forge continues to perform pure planning only: no network, database, queue, filesystem, authorization, dynamic compilation, assembly scanning, or runtime plugin activation is introduced by these features.
+<a id="design"></a>
 
 ## Design rules
 
 1. .NET 10 first.
 2. Source-generated normal Delta/Sync hot paths.
-3. AOT and trimming friendly runtime primitives.
-4. No reflection in normal generated comparison/reconciliation.
+3. Native AOT and trimming-friendly runtime primitives.
+4. No runtime reflection in generated comparison/reconciliation paths.
 5. No mandatory dependency injection.
 6. No persistence or transport assumptions.
 7. No hidden I/O or mutation.
@@ -354,103 +266,25 @@ Forge continues to perform pure planning only: no network, database, queue, file
 9. Explicit state and identity semantics.
 10. Deterministic planning and portable plan descriptions.
 11. Application-owned policy and execution.
-12. Features must solve broad production primitives rather than framework-specific convenience.
+12. New features must solve broad production primitives, not framework-specific convenience.
 
-See `docs/API_CONTRACT.md`, `docs/DESIGN.md`, `docs/RECONCILIATION.md`, `docs/DOGFOOD.md` and the milestone reviews for the detailed contracts.
+<a id="docs"></a>
 
-## 1.1-1.8 planning features
+## Documentation
 
-The post-1.0 feature train adds planning capabilities on top of Delta and Sync without moving execution into Forge:
+- **[Website](https://pjotrcasteel.github.io/Forge/):** visual introduction, interactive planning examples, package choice, and AI-agent context.
+- **This README:** package choice, first Delta/Sync, planning boundary, and common capabilities.
+- **[API_CONTRACT.md](docs/API_CONTRACT.md):** stable generated/runtime contracts across Forge 1.x.
+- **[DESIGN.md](docs/DESIGN.md):** semantics, source-generation model, extension rules, safety, and complexity.
+- **[RECONCILIATION.md](docs/RECONCILIATION.md):** reconciliation details and identity semantics.
+- **[llms.txt](https://pjotrcasteel.github.io/Forge/llms.txt):** concise machine-readable map for coding agents.
 
-```text
-Current + Desired
-      ↓
-structural Delta / Sync
-      ↓
-explanation + operation rules
-      ↓
-impact + constraints
-      ↓
-incremental replanning
-      ↓
-portable simulation
-```
+<a id="license"></a>
 
-### Explain and classify
+## License
 
-```csharp
-var explanation = SyncPlanExplainer.Explain(plan);
+MIT. See [LICENSE](LICENSE).
 
-var rules = new SyncOperationRules<OrderItem, OrderItemSync.Key, OrderItemDelta, Operation>(
-        Operation.Add,
-        Operation.Delete,
-        Operation.Modify)
-    .WhenUpdated(
-        "replace.product",
-        "Changing product requires replacement.",
-        update => update.Delta.ProductChange.HasChanged,
-        Operation.Replace);
+---
 
-var operations = rules.Plan(plan);
-```
-
-### Generated cross-type profiles
-
-```csharp
-[GenerateCrossSyncProfile(typeof(StoredLine), typeof(RequestedLine))]
-[CrossSyncIdentity(nameof(StoredLine.Id), nameof(RequestedLine.Id))]
-[CrossSyncMap(nameof(StoredLine.Name), nameof(RequestedLine.Name))]
-[CrossSyncMap(nameof(StoredLine.Quantity), nameof(RequestedLine.Quantity))]
-public partial class StoredLineProfile
-{
-}
-
-var crossTypePlan = StoredLineProfile.Plan(current, desired);
-```
-
-### Incremental replanning
-
-```csharp
-var manifest = SyncManifest.Create(plan, key => key.ToString());
-var tracked = IncrementalReplanner.Create(manifest, CreateOperationId);
-var next = IncrementalReplanner.Replan(tracked, nextManifest, CreateOperationId);
-
-next.Retained;
-next.NewlyRequired;
-next.NoLongerRequired;
-next.Replaced;
-```
-
-### Impact and constraints
-
-```csharp
-var impact = ImpactAnalyzer.Analyze(changedKeys, propagationEdges);
-
-var validation = SyncPlanConstraints
-    .For<OrderItem, OrderItemSync.Key, OrderItemDelta>()
-    .MaximumChanges(100)
-    .RequireNoRemovals()
-    .Validate(plan);
-```
-
-### Resolve three-way conflicts
-
-```csharp
-var analysis = CustomerDelta.AnalyzeMerge(baseline, current, desired);
-var resolution = MergeResolver.Resolve(
-    analysis,
-    new MergeResolutionPolicy()
-        .PreferDesired("Description")
-        .PreferCurrent("LastObservedAt"));
-```
-
-### Simulate before execution
-
-```csharp
-var simulation = ManifestPlanSimulator.Simulate(manifest, currentSnapshot);
-
-if (simulation.Applied && simulation.Matches(expectedDesiredSnapshot))
-{
-    // The structural plan projects to the expected state.
-}
-```
+Forge is an open-source project by **[Pjotr Casteel](https://github.com/pjotrcasteel)**.
