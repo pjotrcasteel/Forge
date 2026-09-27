@@ -41,6 +41,6 @@ internal static class GeneratorTestHelper
 
         return trustedPlatformAssemblies
             .Split(Path.PathSeparator)
-            .Select(MetadataReference.CreateFromFile);
+            .Select(static path => MetadataReference.CreateFromFile(path));
     }
 }

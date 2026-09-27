@@ -269,7 +269,7 @@ public sealed class SyncGeneratorTests
             .SourceText
             .ToString();
 
-        StringAssert.DoesNotContain(deltaSource, "IdChange");
+        Assert.IsFalse(deltaSource.Contains("IdChange", StringComparison.Ordinal));
         StringAssert.Contains(deltaSource, "NameChange");
     }
 
@@ -305,7 +305,7 @@ public sealed class SyncGeneratorTests
 
         StringAssert.Contains(syncSource, "var desiredKeys = new global::System.Collections.Generic.HashSet<Key>");
         StringAssert.Contains(syncSource, "ItemDelta.AreEquivalent(currentItem, desiredItem)");
-        StringAssert.DoesNotContain(syncSource, "desiredByKey");
+        Assert.IsFalse(syncSource.Contains("desiredByKey", StringComparison.Ordinal));
         Assert.AreEqual(
             1,
             syncSource.Split(
@@ -415,11 +415,11 @@ public sealed class SyncGeneratorTests
             .SourceText
             .ToString();
 
-        StringAssert.DoesNotContain(serviceDelta, "CharacteristicsChange");
+        Assert.IsFalse(serviceDelta.Contains("CharacteristicsChange", StringComparison.Ordinal));
         StringAssert.Contains(serviceSync, "public static bool AreEquivalent(");
         StringAssert.Contains(serviceSync, "PlanCharacteristics(");
         StringAssert.Contains(serviceSync, "global::Demo.CharacteristicSync.AreEquivalent(currentItem.Characteristics");
-        StringAssert.DoesNotContain(serviceSync, "hasChanges |= global::Demo.CharacteristicSync.Plan(");
+        Assert.IsFalse(serviceSync.Contains("hasChanges |= global::Demo.CharacteristicSync.Plan(", StringComparison.Ordinal));
     }
 
 

@@ -5,6 +5,8 @@ namespace Forge.Sync.Tests;
 [TestClass]
 public sealed class StreamingSyncTests
 {
+    public TestContext TestContext { get; set; } = null!;
+
     [TestMethod]
     public async Task PlanOrderedAsync_ShouldMergeOrderedStreams()
     {

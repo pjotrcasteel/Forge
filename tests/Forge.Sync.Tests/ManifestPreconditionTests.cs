@@ -6,8 +6,10 @@ public sealed class ManifestPreconditionTests
     [TestMethod]
     public void Validate_WhenCurrentStateStillMatches_ShouldSucceed()
     {
-        OrderItem[] current = [new("a", "router", 1)];
-        OrderItem[] desired = [new("a", "router", 2), new("b", "firewall", 1)];
+        var existingId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var addedId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        OrderItem[] current = [new(existingId, "router", 1)];
+        OrderItem[] desired = [new(existingId, "router", 2), new(addedId, "firewall", 1)];
         var plan = OrderItemSync.Plan(current, desired);
         var manifest = SyncManifest.Create(plan, static key => key.ToString());
         var snapshot = ManifestStateSnapshot.Create(
@@ -23,10 +25,11 @@ public sealed class ManifestPreconditionTests
     [TestMethod]
     public void Validate_WhenStateChangedAfterPlanning_ShouldRejectStalePlan()
     {
-        OrderItem[] current = [new("a", "router", 1)];
-        OrderItem[] desired = [new("a", "router", 2)];
+        var existingId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        OrderItem[] current = [new(existingId, "router", 1)];
+        OrderItem[] desired = [new(existingId, "router", 2)];
         var manifest = SyncManifest.Create(OrderItemSync.Plan(current, desired), static key => key.ToString());
-        OrderItem[] changedMeanwhile = [new("a", "router", 99)];
+        OrderItem[] changedMeanwhile = [new(existingId, "router", 99)];
         var snapshot = ManifestStateSnapshot.Create(
             changedMeanwhile,
             static item => OrderItemSync.GetKey(item),
