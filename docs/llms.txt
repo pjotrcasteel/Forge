@@ -1,0 +1,39 @@
+# Forge
+
+> Strongly typed state transition planning for .NET 10.
+
+Forge is an MIT-licensed .NET library family by Pjotr Casteel.
+
+Canonical website: https://pjotrcasteel.github.io/Forge/
+Canonical repository: https://github.com/pjotrcasteel/Forge
+
+## Packages
+
+- Forge.Delta — source-generated semantic object differences.
+  - NuGet: https://www.nuget.org/packages/Forge.Delta
+- Forge.Sync — source-generated desired-state reconciliation and typed planning. Depends on Forge.Delta.
+  - NuGet: https://www.nuget.org/packages/Forge.Sync
+
+Current family version: 1.20.0
+
+## Core boundary
+
+Forge calculates, classifies, validates, explains and simulates transitions.
+Forge does not persist state, call external systems, publish messages, authorize actions or execute plans.
+
+## Start here
+
+- README: https://github.com/pjotrcasteel/Forge
+- API contract: https://github.com/pjotrcasteel/Forge/blob/main/docs/API_CONTRACT.md
+- Design: https://github.com/pjotrcasteel/Forge/blob/main/docs/DESIGN.md
+- Reconciliation: https://github.com/pjotrcasteel/Forge/blob/main/docs/RECONCILIATION.md
+
+## Important semantics
+
+- Delta answers: what changed inside one object?
+- Sync answers: how do keyed current and desired collections differ?
+- Replace means complete desired state; current-only items may be removed.
+- Upsert means partial desired input; current-only items are preserved.
+- Generated normal hot paths use direct property access rather than runtime reflection.
+- Logical keys, execution states, facts, reasons, approval scopes and invariant violations remain consumer CLR types.
+- Portable manifests are data, not executable code.
