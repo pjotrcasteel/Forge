@@ -1,0 +1,83 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/artifacts/nuget-cache
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore Forge.slnx
+
+      - name: Build
+        run: dotnet build Forge.slnx -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Forge.slnx -c Release --no-build
+
+      - name: Publish AOT smoke sample
+        run: dotnet publish samples/Forge.Aot.Sample/Forge.Aot.Sample.csproj -c Release -r linux-x64 --no-restore
+
+      - name: Pack
+        run: |
+          dotnet pack src/Forge.Delta/Forge.Delta.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Sync/Forge.Sync.csproj -c Release --no-build -o artifacts/packages
+
+      - name: Validate package layout and metadata
+        run: python eng/verify_packages.py artifacts/packages "$(sed -n 's:.*<ForgeVersion>\(.*\)</ForgeVersion>.*:\1:p' Directory.Build.props)"
+
+      - name: Validate Forge.Delta packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/delta
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/delta" \
+            dotnet restore tests/Forge.Delta.PackageConsumer/Forge.Delta.PackageConsumer.csproj \
+              --source artifacts/packages \
+              --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/delta" \
+            dotnet run --project tests/Forge.Delta.PackageConsumer/Forge.Delta.PackageConsumer.csproj \
+              -c Release \
+              --no-restore
+
+      - name: Validate Forge.Sync packed consumer and transitive Delta
+        run: |
+          rm -rf artifacts/package-consumers/sync
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" \
+            dotnet restore tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj \
+              --source artifacts/packages \
+              --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" \
+            dotnet run --project tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj \
+              -c Release \
+              --no-restore
+
+      - name: Write package checksums
+        run: |
+          cd artifacts/packages
+          sha256sum *.nupkg *.snupkg > SHA256SUMS.txt
+
+      - name: Upload packed NuGets
+        uses: actions/upload-artifact@v4
+        with:
+          name: forge-packages-${{ github.sha }}
+          path: |
+            artifacts/packages/*.nupkg
+            artifacts/packages/*.snupkg
+            artifacts/packages/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 14

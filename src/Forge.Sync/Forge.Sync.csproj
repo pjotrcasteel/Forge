@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Forge.Sync</PackageId>
+    <Title>Forge.Sync</Title>
+    <Version>$(ForgeVersion)</Version>
+    <Description>Compile-time desired-state reconciliation and transition planning for .NET.</Description>
+    <PackageTags>dotnet sync reconciliation desired-state diff source-generator topology dependency-planning aot trimming</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Forge.Sync 1.20.0: typed composite topology transitions with cross-topology invariants and dependency ordering.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Delta/Forge.Delta.csproj" />
+    <ProjectReference Include="../Forge.Sync.Generators/Forge.Sync.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../packaging/Forge.Sync.README.md" Pack="true" PackagePath="README.md" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="LICENSE" />
+    <None Include="../Forge.Sync.Generators/bin/$(Configuration)/netstandard2.0/Forge.Sync.Generators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+  </ItemGroup>
+</Project>

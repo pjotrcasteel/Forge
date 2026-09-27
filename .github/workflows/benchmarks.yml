@@ -1,0 +1,33 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore Forge.slnx
+
+      - name: Build benchmarks
+        run: dotnet build benchmarks/Forge.Benchmarks/Forge.Benchmarks.csproj -c Release --no-restore
+
+      - name: Run benchmarks
+        run: dotnet run --project benchmarks/Forge.Benchmarks/Forge.Benchmarks.csproj -c Release --no-build -- --exporters json markdown
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: forge-benchmarks
+          path: BenchmarkDotNet.Artifacts/results

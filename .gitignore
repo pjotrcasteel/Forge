@@ -1,0 +1,14 @@
+bin/
+obj/
+artifacts/
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.user
+*.suo
+*.nupkg
+*.snupkg
+.vs/
+.idea/
+.DS_Store
+__pycache__/
+*.pyc

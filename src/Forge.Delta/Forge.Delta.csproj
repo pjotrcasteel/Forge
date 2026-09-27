@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Forge.Delta</PackageId>
+    <Title>Forge.Delta</Title>
+    <Version>$(ForgeVersion)</Version>
+    <Description>Compile-time, strongly typed object change detection for .NET.</Description>
+    <PackageTags>dotnet delta diff change-detection change-tracking source-generator roslyn aot trimming</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Forge.Delta 1.20.0: Delta API remains compatible; family version aligned with the Forge 1.20 planning release.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Delta.Generators/Forge.Delta.Generators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false"
+                      PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../packaging/Forge.Delta.README.md" Pack="true" PackagePath="README.md" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="LICENSE" />
+    <None Include="../Forge.Delta.Generators/bin/$(Configuration)/netstandard2.0/Forge.Delta.Generators.dll"
+          Pack="true"
+          PackagePath="analyzers/dotnet/cs"
+          Visible="false" />
+  </ItemGroup>
+</Project>
