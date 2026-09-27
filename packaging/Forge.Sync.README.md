@@ -1,18 +1,24 @@
-# Forge.Sync
+# Forge.Sync 1.20.0
 
-**Compile-time desired-state reconciliation for .NET 10.**
+> Source-generated desired-state reconciliation and typed transition planning for .NET 10.
+>
+> **Website:** https://pjotrcasteel.github.io/Forge/ · **NuGet:** https://www.nuget.org/packages/Forge.Sync · **Source:** https://github.com/pjotrcasteel/Forge
 
-Forge.Sync turns current and desired keyed state into an explicit reconciliation plan while leaving persistence, transports, workflow policy, and execution in your application.
+Forge.Sync answers one question first:
+
+> **How does the state I have become the state I want?**
+
+It produces an explicit reconciliation/transition plan while persistence, transport, workflow policy, authorization, and execution stay in your application.
 
 Installing `Forge.Sync` also brings in `Forge.Delta`.
 
 ## Install
 
 ```bash
-dotnet add package Forge.Sync
+dotnet add package Forge.Sync --version 1.20.0
 ```
 
-## Quick start
+## Five-minute start
 
 ```csharp
 using Forge.Sync;
@@ -31,19 +37,20 @@ plan.Removed;
 plan.Unchanged;
 ```
 
-Every update carries a strongly typed generated Delta:
+Every update carries its generated typed Delta:
 
 ```csharp
 foreach (var update in plan.Updated)
 {
     foreach (var change in update.Delta.Changes)
     {
-        Console.WriteLine($"{update.Key}: {change.Path}: {change.Before} -> {change.After}");
+        Console.WriteLine(
+            $"{update.Key}: {change.Path}: {change.Before} -> {change.After}");
     }
 }
 ```
 
-## Replace and partial Upsert
+## Replace versus partial Upsert
 
 Complete desired state is the default:
 
@@ -51,60 +58,69 @@ Complete desired state is the default:
 var replace = OrderItemSync.Plan(current, desired);
 ```
 
-For partial input where omitted current items must survive:
+For partial input where omitted current items must remain untouched:
 
 ```csharp
-var upsert = OrderItemSync.Plan(current, payload, SyncMode.Upsert);
+var upsert = OrderItemSync.Plan(
+    current,
+    payload,
+    SyncMode.Upsert);
 
 upsert.Preserved;
 ```
 
-The distinction is explicit so a partial patch cannot accidentally become a deletion plan.
+The distinction is explicit so a partial payload cannot accidentally become a deletion plan.
 
-## More than same-type collections
+## When Forge.Sync is useful
 
-Forge.Sync also supports:
+Forge.Sync is a strong fit for:
 
-- nested keyed reconciliation with `[SyncNested]`;
-- current and desired values with different CLR types;
-- ordered fallback identities such as instance ID first, business ID second;
-- dependency planning and cycle detection;
-- typed operation classification;
-- ordered streaming reconciliation with `IAsyncEnumerable<T>`;
-- node/edge topology reconciliation;
-- reversible Replace plans;
-- portable manifests, canonical plan digests, stale-plan checks, and batch composition.
+- desired-state APIs;
+- provisioning/deprovisioning planning;
+- nested keyed collections;
+- cross-type current/desired models;
+- ordered fallback identities;
+- dependency-aware create/delete waves;
+- topology reconciliation;
+- portable plans and stale-state checks;
+- plan validation and explanation;
+- incremental and execution-aware replanning.
 
-## Boundary
+## Dependency-aware planning
 
-Forge calculates and explains the transition. It does **not** persist data, call external systems, publish events, or decide application-specific business policy.
+```csharp
+var dependencyPlan = DependencyPlanner.Plan(
+    operations,
+    static item => item.Id,
+    static item => item.DependsOn);
 
-## Runtime characteristics
+foreach (var wave in dependencyPlan.CreateWaves)
+{
+    // Safe after every previous wave completed.
+}
+```
 
-- .NET 10
-- source-generated
-- Native AOT and trimming friendly
-- no runtime reflection in generated reconciliation paths
-- no mandatory DI
-- no infrastructure dependency
+Cycles are surfaced before execution.
 
-## Planning beyond structural reconciliation
+## Planning boundary
 
-Forge.Sync 1.8 also includes:
+Forge calculates, classifies, validates, explains, and simulates the transition.
 
-- structured plan explanations;
-- source-generated cross-type profiles;
-- ordered Delta-aware operation rules;
-- incremental semantic replanning with stable application-owned operation IDs;
-- graph impact analysis;
-- typed pre-execution plan constraints;
-- portable plan simulation with stale-plan protection.
-
-These features remain planning primitives: Forge still performs no persistence or external execution.
-
+It does **not** persist state, call external systems, publish events, authorize operations, discover runtime plugins, or execute plans.
 
 ## Typed planning through 1.20
 
-Forge.Sync 1.20 adds typed conditional dependencies, readiness, safe slices, provenance, plan-to-plan Delta, execution-aware replanning, approval scopes, alternative plans, typed derived facts, lazy scenario matrices, source-generated plan templates, and composite topology invariants.
+Forge.Sync 1.20 includes typed conditional dependencies, readiness, safe plan slices, provenance, plan-to-plan Delta, execution-aware replanning, approval scopes, alternative plans, derived facts, scenario matrices, plan templates, and composite topology invariants.
 
-The application retains its own identity/state/fact/scope/reason types; Forge does not require string registries, reflection-driven rule discovery, or an execution engine.
+Applications retain their own identity, state, fact, scope, reason, metric, and violation types; Forge does not require string registries or reflection-driven rule discovery.
+
+## Runtime characteristics
+
+- .NET 10;
+- source-generated normal reconciliation hot path;
+- Native AOT and trimming friendly;
+- no runtime reflection in generated reconciliation paths;
+- no mandatory DI;
+- no infrastructure dependency.
+
+Full documentation: https://pjotrcasteel.github.io/Forge/
