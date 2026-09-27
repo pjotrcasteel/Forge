@@ -4,8 +4,8 @@
     <PackageId>Forge.Sync</PackageId>
     <Title>Forge.Sync</Title>
     <Version>$(ForgeVersion)</Version>
-    <Description>Compile-time desired-state reconciliation and transition planning for .NET.</Description>
-    <PackageTags>dotnet sync reconciliation desired-state diff source-generator topology dependency-planning aot trimming</PackageTags>
+    <Description>Source-generated desired-state reconciliation and typed transition planning for .NET 10.</Description>
+    <PackageTags>forge;dotnet;sync;reconciliation;desired-state;state-transition;planning;source-generator;topology;dependency-planning;aot;trimming</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>

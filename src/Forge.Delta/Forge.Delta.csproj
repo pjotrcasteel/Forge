@@ -4,8 +4,8 @@
     <PackageId>Forge.Delta</PackageId>
     <Title>Forge.Delta</Title>
     <Version>$(ForgeVersion)</Version>
-    <Description>Compile-time, strongly typed object change detection for .NET.</Description>
-    <PackageTags>dotnet delta diff change-detection change-tracking source-generator roslyn aot trimming</PackageTags>
+    <Description>Source-generated, strongly typed semantic object differences for .NET 10.</Description>
+    <PackageTags>forge;dotnet;delta;diff;semantic-diff;change-detection;change-tracking;source-generator;roslyn;aot;trimming</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageReadmeFile>README.md</PackageReadmeFile>

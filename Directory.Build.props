@@ -8,6 +8,17 @@
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <Authors>Pjotr Casteel</Authors>
-    <Copyright>Copyright © 2026</Copyright>
+    <Copyright>Copyright © 2026 Pjotr Casteel</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/pjotrcasteel/Forge</RepositoryUrl>
+    <PackageProjectUrl>https://pjotrcasteel.github.io/Forge/</PackageProjectUrl>
+    <PackageIcon>forge-icon.png</PackageIcon>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="$(MSBuildThisFileDirectory)packaging/forge-icon.png"
+          Pack="true"
+          PackagePath=""
+          Visible="false" />
+  </ItemGroup>
 </Project>
