@@ -67,7 +67,8 @@ def verify_metadata(nuspec: ET.Element, package_id: str, version: str) -> None:
         fail(f"{package_id} must have a package description")
     if child_text(data, "readme") != "README.md":
         fail(f"{package_id} must declare README.md as its package README")
-    if (child_text(data, "requireLicenseAcceptance") or "").lower() != "false":
+    require_license_acceptance = child_text(data, "requireLicenseAcceptance")
+    if require_license_acceptance is not None and require_license_acceptance.lower() != "false":
         fail(f"{package_id} must not require license acceptance")
 
     license_elements = [element for element in data if local_name(element) == "license"]
