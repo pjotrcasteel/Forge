@@ -18,7 +18,6 @@ public static class ProvisioningPlanBuilder
         {
             operations.Add(CreateOperation(
                 ProvisioningAction.Add,
-                addition.Desired,
                 addition.Desired));
         }
 
@@ -26,7 +25,6 @@ public static class ProvisioningPlanBuilder
         {
             operations.Add(CreateOperation(
                 ProvisioningAction.Update,
-                update.Desired,
                 update.Desired));
         }
 
@@ -34,7 +32,6 @@ public static class ProvisioningPlanBuilder
         {
             operations.Add(CreateOperation(
                 ProvisioningAction.Remove,
-                removal.Current,
                 removal.Current));
         }
 
@@ -57,14 +54,13 @@ public static class ProvisioningPlanBuilder
 
     private static ProvisioningOperation CreateOperation(
         ProvisioningAction action,
-        ServiceComponent component,
-        ServiceComponent state)
+        ServiceComponent component)
     {
         return new ProvisioningOperation(
             new OperationKey(action, component.Id),
             action,
             component.Id,
-            Fingerprint(state),
+            Fingerprint(component),
             Array.Empty<OperationKey>());
     }
 
