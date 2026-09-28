@@ -27,6 +27,7 @@ Forge does not persist state, call external systems, publish messages, authorize
 - API contract: https://github.com/pjotrcasteel/Forge/blob/main/docs/API_CONTRACT.md
 - Design: https://github.com/pjotrcasteel/Forge/blob/main/docs/DESIGN.md
 - Reconciliation: https://github.com/pjotrcasteel/Forge/blob/main/docs/RECONCILIATION.md
+- Production-style example: https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample
 
 ## Important semantics
 
