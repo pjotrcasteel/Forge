@@ -277,7 +277,8 @@ That boundary keeps planning deterministic, testable, and infrastructure-indepen
 - **[API_CONTRACT.md](docs/API_CONTRACT.md):** stable generated/runtime contracts across Forge 1.x.
 - **[DESIGN.md](docs/DESIGN.md):** semantics, source-generation model, extension rules, safety, and complexity.
 - **[RECONCILIATION.md](docs/RECONCILIATION.md):** reconciliation details and identity semantics.
-- **[Production-style service provisioning sample](samples/Forge.ServiceProvisioning.Sample/README.md):** Delta → Sync → dependencies → manifest → stale-state protection → execution-aware replanning.
+- **[Two-minute production story](https://pjotrcasteel.github.io/Forge/service-provisioning.html):** understand the full Forge value chain visually before reading APIs.
+- **[Production-style service provisioning sample](samples/Forge.ServiceProvisioning.Sample/README.md):** runnable evidence for Delta → Sync → dependencies → manifest → stale-state protection → execution-aware replanning.
 - **[llms.txt](https://pjotrcasteel.github.io/Forge/llms.txt):** concise machine-readable map for coding agents.
 
 <a id="license"></a>
