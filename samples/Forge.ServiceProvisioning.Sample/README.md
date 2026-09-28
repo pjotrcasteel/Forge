@@ -2,6 +2,8 @@
 
 A runnable production-style Forge example.
 
+**Two-minute visual story:** https://pjotrcasteel.github.io/Forge/service-provisioning.html
+
 The sample starts with an existing service state:
 
 ```text
