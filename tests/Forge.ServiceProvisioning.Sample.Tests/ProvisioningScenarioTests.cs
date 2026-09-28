@@ -1,3 +1,4 @@
+using Forge.Sync;
 using Forge.ServiceProvisioning.Sample;
 
 namespace Forge.ServiceProvisioning.Sample.Tests;
@@ -36,7 +37,9 @@ public sealed class ProvisioningScenarioTests
 
         Assert.AreEqual(4, result.ManifestOperationCount);
         Assert.AreEqual(64, result.ManifestDigest.Length);
-        Assert.IsTrue(result.ManifestJson.Contains("\"schemaVersion\"", StringComparison.Ordinal));
+        var parsedManifest = SyncManifestDocument.Parse(result.ManifestJson);
+        Assert.AreEqual(SyncManifestDocument.CurrentSchemaVersion, parsedManifest.SchemaVersion);
+        Assert.AreEqual(result.ManifestOperationCount, parsedManifest.OperationCount);
         Assert.IsTrue(result.OriginalStateAccepted);
         Assert.IsFalse(result.ChangedStateAccepted);
         CollectionAssert.AreEqual(new[] { "router" }, result.StaleKeys.ToArray());
