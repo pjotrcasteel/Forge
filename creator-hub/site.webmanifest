@@ -1,0 +1,16 @@
+{
+  "name": "PjotrCasteel Open Source",
+  "short_name": "PjotrCasteel",
+  "description": "Independent open-source .NET tools for explicit software.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#11110f",
+  "theme_color": "#11110f",
+  "icons": [
+    {
+      "src": "./mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

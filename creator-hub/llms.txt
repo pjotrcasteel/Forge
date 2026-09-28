@@ -1,0 +1,50 @@
+# PjotrCasteel Open Source
+
+> Independent open-source .NET tools for making difficult software behavior explicit.
+
+Canonical creator hub: https://pjotrcasteel.github.io/
+GitHub: https://github.com/pjotrcasteel
+NuGet: https://www.nuget.org/profiles/PjotrCasteel
+
+## Product map
+
+### Causalia
+
+Promise: Explore what can happen.
+
+Deterministic simulation testing for concurrent and distributed .NET software.
+
+- Website: https://pjotrcasteel.github.io/Causalia/
+- Source: https://github.com/pjotrcasteel/Causalia
+- NuGet: https://www.nuget.org/packages/Causalia
+
+### Forge
+
+Promise: Plan what should happen.
+
+Strongly typed primitives for semantic differences, desired-state reconciliation and explicit transition planning.
+
+- Website: https://pjotrcasteel.github.io/Forge/
+- Source: https://github.com/pjotrcasteel/Forge
+- Production story: https://pjotrcasteel.github.io/Forge/service-provisioning.html
+- Forge.Delta: https://www.nuget.org/packages/Forge.Delta
+- Forge.Sync: https://www.nuget.org/packages/Forge.Sync
+- Forge.Parse: reserved/planned family identity; not a separate ParseForge brand.
+
+### GORM
+
+Promise direction: Model how things connect.
+
+Graph-oriented data access and graph persistence. Its dedicated public product surface is the next portfolio milestone.
+
+## Shared engineering DNA
+
+- typed over stringly;
+- evidence before claims;
+- explicit product boundaries;
+- deterministic explanations;
+- independent products rather than an umbrella framework;
+- product-specific visual identities;
+- machine-readable documentation where useful.
+
+Canonical Design DNA: https://pjotrcasteel.github.io/CREATOR_DESIGN_DNA.md

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="PjotrCasteel open-source projects">
+  <rect width="1200" height="630" fill="#11110f"/>
+  <g opacity=".12" stroke="#f0ece3">
+    <path d="M0 90h1200M0 180h1200M0 270h1200M0 360h1200M0 450h1200M0 540h1200"/>
+    <path d="M100 0v630M200 0v630M300 0v630M400 0v630M500 0v630M600 0v630M700 0v630M800 0v630M900 0v630M1000 0v630M1100 0v630"/>
+  </g>
+  <rect x="80" y="78" width="72" height="72" rx="17" fill="#171714" stroke="#47453e"/>
+  <text x="116" y="124" text-anchor="middle" fill="#d7cbb1" font-size="22" font-family="monospace" font-weight="800">PC</text>
+  <text x="80" y="220" fill="#d7cbb1" font-size="22" font-family="monospace" font-weight="700" letter-spacing="4">PJOTRCASTEEL · OPEN SOURCE</text>
+  <text x="80" y="310" fill="#f0ece3" font-size="62" font-family="Arial, sans-serif" font-weight="800">Tools for software that</text>
+  <text x="80" y="380" fill="#9f9b92" font-size="62" font-family="Arial, sans-serif" font-weight="800">needs to explain itself.</text>
+  <g font-family="Arial, sans-serif" font-size="22" font-weight="700">
+    <circle cx="93" cy="482" r="7" fill="#80f0c8"/><text x="112" y="490" fill="#f0ece3">Causalia</text>
+    <circle cx="307" cy="482" r="7" fill="#ffb454"/><text x="326" y="490" fill="#f0ece3">Forge</text>
+    <circle cx="480" cy="482" r="7" fill="#c9a7ff"/><text x="499" y="490" fill="#f0ece3">GORM</text>
+  </g>
+  <text x="80" y="555" fill="#77736b" font-size="19" font-family="monospace">typed · explicit · evidence before claims · independent products</text>
+</svg>
