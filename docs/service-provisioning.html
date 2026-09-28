@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Pjotr Casteel">
+  <title>Forge in production — from desired state to safe replan</title>
+  <meta name="description" content="A two-minute visual story showing how Forge turns current and desired state into a typed plan, detects stale state, and replans around work already in flight.">
+  <meta name="theme-color" content="#0b0c0f">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Forge in production — from desired state to safe replan">
+  <meta property="og:description" content="Follow one real Forge scenario from Delta and Sync through dependency waves, manifests, stale-state protection and execution-aware replanning.">
+  <meta property="og:url" content="https://pjotrcasteel.github.io/Forge/service-provisioning.html">
+  <meta property="og:image" content="https://pjotrcasteel.github.io/Forge/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://pjotrcasteel.github.io/Forge/service-provisioning.html">
+  <link rel="icon" href="./logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./forge-icon.png">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./story.css">
+</head>
+<body class="story-body">
+  <div class="grid-sky" aria-hidden="true"></div>
+  <div class="heat heat-a" aria-hidden="true"></div>
+  <div class="heat heat-b" aria-hidden="true"></div>
+
+  <header class="nav-shell">
+    <nav class="nav container" aria-label="Story navigation">
+      <a class="brand" href="./" aria-label="Forge home">
+        <img src="./logo.svg" alt="" width="30" height="30"><span>Forge</span>
+      </a>
+      <div class="nav-links story-nav-links">
+        <a href="#state">State</a>
+        <a href="#plan">Plan</a>
+        <a href="#stale">Stale state</a>
+        <a href="#replan">Replan</a>
+      </div>
+      <a class="button button-small" href="https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample">Runnable sample</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="story-hero container">
+      <div class="story-hero-copy reveal">
+        <div class="eyebrow"><span class="spark"></span> A two-minute production story</div>
+        <h1>Plans are easy.<br><span>Reality moving underneath them is not.</span></h1>
+        <p class="hero-lead">
+          One service change. Five moments. The exact scenario is backed by the runnable
+          <code>Forge.ServiceProvisioning.Sample</code> and its tests.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#state">Start the story</a>
+          <a class="button button-ghost" href="https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample">Inspect the code</a>
+        </div>
+      </div>
+
+      <aside class="story-promise reveal delay-1" aria-label="Story summary">
+        <span class="mono-label">THE WHOLE STORY</span>
+        <ol>
+          <li><b>Compare</b><span>current versus desired state</span></li>
+          <li><b>Plan</b><span>typed changes and dependency waves</span></li>
+          <li><b>Carry</b><span>the plan as a portable manifest</span></li>
+          <li><b>Reject</b><span>the plan when reality changed</span></li>
+          <li><b>Replan</b><span>without pretending started work vanished</span></li>
+        </ol>
+        <div class="story-boundary">Forge calculates. Your application executes.</div>
+      </aside>
+    </section>
+
+    <div class="story-progress-shell" aria-hidden="true">
+      <div class="container story-progress">
+        <span>01 STATE</span><i></i><span>02 PLAN</span><i></i><span>03 ORDER</span><i></i><span>04 STALE</span><i></i><span>05 REPLAN</span>
+      </div>
+    </div>
+
+    <section id="state" class="story-section container">
+      <div class="story-chapter reveal">
+        <span class="chapter-number">01</span>
+        <div>
+          <div class="eyebrow">Current state ≠ desired state</div>
+          <h2>The request looks simple until you make the transition explicit.</h2>
+          <p>
+            The application already has an access service, router and legacy VPN. The new desired state
+            keeps access, changes the router, removes the VPN and introduces a firewall plus monitoring.
+          </p>
+        </div>
+      </div>
+
+      <div class="topology-compare reveal">
+        <article class="topology-card current-card">
+          <div class="topology-head"><span>CURRENT</span><small>what exists now</small></div>
+          <div class="tree">
+            <div class="tree-node stable"><b>access</b><small>Access · rev 1</small></div>
+            <div class="tree-branch">
+              <div class="tree-node change"><b>router</b><small>Router · rev 1 · edge-a</small></div>
+              <div class="tree-branch">
+                <div class="tree-node remove"><b>legacy-vpn</b><small>LegacyVpn · vpn-v1</small></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <div class="transition-arrow" aria-hidden="true">→</div>
+
+        <article class="topology-card desired-card">
+          <div class="topology-head"><span>DESIRED</span><small>what should exist</small></div>
+          <div class="tree">
+            <div class="tree-node stable"><b>access</b><small>Access · rev 1</small></div>
+            <div class="tree-branch">
+              <div class="tree-node change"><b>router</b><small>Router · rev 2 · edge-b</small></div>
+              <div class="tree-branch">
+                <div class="tree-node add"><b>firewall</b><small>Firewall · standard</small></div>
+                <div class="tree-branch">
+                  <div class="tree-node add"><b>monitoring</b><small>Monitoring · enhanced</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="story-insight reveal">
+        <span>THE FIRST FORGE QUESTION</span>
+        <strong>What changed—and why?</strong>
+        <code>ServiceComponentSync.Plan(current, desired)</code>
+      </div>
+    </section>
+
+    <section id="plan" class="story-section story-section-alt">
+      <div class="container">
+        <div class="story-chapter reveal">
+          <span class="chapter-number">02</span>
+          <div>
+            <div class="eyebrow">Delta + Sync</div>
+            <h2>Forge turns the gap into a typed plan.</h2>
+            <p>
+              Instead of one opaque “update service” instruction, the transition becomes inspectable.
+              The router update also carries its generated Delta, so the reason for the update remains available.
+            </p>
+          </div>
+        </div>
+
+        <div class="plan-board reveal">
+          <div class="plan-result keep"><span>UNCHANGED</span><strong>access</strong><small>same logical state</small></div>
+          <div class="plan-result update"><span>UPDATE</span><strong>router</strong><small>Revision: 1 → 2 · Configuration: edge-a → edge-b</small></div>
+          <div class="plan-result add"><span>ADD</span><strong>firewall</strong><small>new desired component</small></div>
+          <div class="plan-result add"><span>ADD</span><strong>monitoring</strong><small>new desired component</small></div>
+          <div class="plan-result remove"><span>REMOVE</span><strong>legacy-vpn</strong><small>absent from complete desired state</small></div>
+        </div>
+
+        <div class="boundary-callout reveal">
+          <div>
+            <span class="mono-label">IMPORTANT BOUNDARY</span>
+            <h3>The plan still is not execution.</h3>
+            <p>
+              The sample's <code>ProvisioningPlanBuilder</code> is application code. It translates structural
+              Forge results into the operation model this fictional provisioning application understands.
+            </p>
+          </div>
+          <div class="boundary-flow">
+            <b>Forge SyncPlan</b><i>→</i><b>application classification</b><i>→</i><b>ProvisioningOperation</b>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="order" class="story-section container">
+      <div class="story-chapter reveal">
+        <span class="chapter-number">03</span>
+        <div>
+          <div class="eyebrow">Dependency-aware planning</div>
+          <h2>Knowing the operations is not enough. Order can be part of correctness.</h2>
+          <p>
+            The firewall depends on the router operation. Monitoring depends on the firewall. Forge calculates
+            deterministic execution waves without performing any operation.
+          </p>
+        </div>
+      </div>
+
+      <div class="wave-board reveal">
+        <article>
+          <span>WAVE 1</span>
+          <div><b>Update router</b><small>can start immediately</small></div>
+          <div><b>Remove legacy-vpn</b><small>independent in this application plan</small></div>
+        </article>
+        <i>→</i>
+        <article>
+          <span>WAVE 2</span>
+          <div><b>Add firewall</b><small>after router operation</small></div>
+        </article>
+        <i>→</i>
+        <article>
+          <span>WAVE 3</span>
+          <div><b>Add monitoring</b><small>after firewall operation</small></div>
+        </article>
+      </div>
+
+      <div class="manifest-strip reveal">
+        <div>
+          <span class="mono-label">THE PLAN CROSSES A BOUNDARY</span>
+          <h3>Turn it into data before execution.</h3>
+          <p>
+            <code>SyncManifest</code> creates a versioned portable description. <code>ManifestDigest</code>
+            gives that exact plan a canonical SHA-256 identity for approval, storage or delayed execution.
+          </p>
+        </div>
+        <div class="manifest-card">
+          <span>manifest</span>
+          <b>4 operations</b>
+          <small>update · add · add · remove</small>
+          <code>sha256: …</code>
+        </div>
+      </div>
+    </section>
+
+    <section id="stale" class="story-section story-section-alt">
+      <div class="container">
+        <div class="story-chapter reveal">
+          <span class="chapter-number">04</span>
+          <div>
+            <div class="eyebrow">Time passes</div>
+            <h2>The dangerous assumption is that the world still looks like it did during planning.</h2>
+            <p>
+              Before the stored plan executes, another process applies an emergency router change.
+              The old plan is structurally valid—but it is no longer valid against current reality.
+            </p>
+          </div>
+        </div>
+
+        <div class="stale-grid reveal">
+          <article>
+            <span class="mono-label">PLANNED AGAINST</span>
+            <div class="state-snapshot"><b>router</b><strong>rev 1</strong><small>edge-a</small></div>
+          </article>
+          <div class="time-gap">
+            <span>time</span><i>→</i><small>another actor changes state</small>
+          </div>
+          <article>
+            <span class="mono-label">ACTUAL NOW</span>
+            <div class="state-snapshot danger"><b>router</b><strong>rev 7</strong><small>emergency-hotfix</small></div>
+          </article>
+        </div>
+
+        <div class="guard-result reveal">
+          <div class="guard-icon">!</div>
+          <div>
+            <span class="mono-label">MANIFEST PRECONDITION</span>
+            <h3>Reject the stale plan.</h3>
+            <p><code>ManifestPreconditions.Validate(...)</code> reports <b>router</b> as changed since planning.</p>
+          </div>
+          <strong>DO NOT EXECUTE</strong>
+        </div>
+
+        <p class="story-quote reveal">
+          Forge does not make an old plan safe by optimism. It gives the application evidence that the assumptions behind the plan no longer hold.
+        </p>
+      </div>
+    </section>
+
+    <section id="replan" class="story-section container">
+      <div class="story-chapter reveal">
+        <span class="chapter-number">05</span>
+        <div>
+          <div class="eyebrow">Execution already started</div>
+          <h2>Replanning gets harder once work has crossed the execution boundary.</h2>
+          <p>
+            Now imagine the first plan already started. A second desired state arrives. Simply discarding the
+            old plan would lie about reality, because completed and running work still exists.
+          </p>
+        </div>
+      </div>
+
+      <div class="execution-lane reveal">
+        <div class="execution-row completed">
+          <span>COMPLETED</span><b>Update router</b><small>cannot be silently un-executed</small>
+        </div>
+        <div class="execution-row running">
+          <span>RUNNING</span><b>Add firewall · standard</b><small>new desired state now wants strict</small>
+        </div>
+        <div class="execution-row waiting">
+          <span>WAITING</span><b>Add monitoring</b><small>no longer desired</small>
+        </div>
+        <div class="execution-row waiting">
+          <span>WAITING</span><b>Remove legacy-vpn</b><small>legacy VPN is desired again</small>
+        </div>
+      </div>
+
+      <div class="replan-arrow reveal"><span>new desired state arrives</span><b>↓</b><code>ExecutedReplanner.Replan(...)</code></div>
+
+      <div class="replan-outcomes reveal">
+        <article class="locked">
+          <span>LOCKED</span>
+          <strong>router</strong>
+          <p>Completed equivalent work remains part of reality.</p>
+        </article>
+        <article class="intervention">
+          <span>INTERVENTION</span>
+          <strong>firewall</strong>
+          <p>The running operation's semantics changed. Application policy must decide what happens next.</p>
+        </article>
+        <article class="safe">
+          <span>SAFE CHANGE</span>
+          <strong>monitoring</strong>
+          <p>Waiting operation can be cancelled before it starts.</p>
+        </article>
+        <article class="safe">
+          <span>SAFE CHANGE</span>
+          <strong>legacy-vpn</strong>
+          <p>Pending removal can be cancelled because the item is desired again.</p>
+        </article>
+        <article class="new">
+          <span>NEW</span>
+          <strong>dns</strong>
+          <p>A newly required operation enters the next plan.</p>
+        </article>
+      </div>
+
+      <div class="story-conclusion reveal">
+        <div>
+          <span class="eyebrow">That is the point of Forge</span>
+          <h2>Make the transition explicit before side effects make it irreversible.</h2>
+          <p>
+            Delta explains the semantic change. Sync reconciles desired state. Dependencies make order explicit.
+            Manifests preserve plan identity. Preconditions catch drift. Execution-aware replanning respects work already in motion.
+          </p>
+        </div>
+        <div class="story-conclusion-actions">
+          <a class="button" href="https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample">Run this exact sample</a>
+          <a class="button button-ghost" href="./#start">Install Forge</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-proof story-section-alt">
+      <div class="container">
+        <div class="proof-grid reveal">
+          <div>
+            <span class="mono-label">NOT A MOCK MARKETING SCENARIO</span>
+            <h3>The story is executable.</h3>
+            <p>
+              The repository sample and dedicated test project assert the structural plan, dependency waves,
+              manifest round-trip, stale-state rejection and execution-aware replan outcomes.
+            </p>
+          </div>
+          <a class="proof-link" href="https://github.com/pjotrcasteel/Forge/tree/main/tests/Forge.ServiceProvisioning.Sample.Tests">
+            <span>SEE THE TESTS</span><b>Forge.ServiceProvisioning.Sample.Tests</b><i>↗</i>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <div class="footer-brand">
+      <div class="brand"><img src="./logo.svg" alt="" width="24" height="24"><span>Forge</span></div>
+      <p>Strongly typed state transition planning for .NET 10.</p>
+    </div>
+    <div class="signature">
+      <span class="signature-mark">PC</span>
+      <div><small>AN OPEN-SOURCE PROJECT BY</small><a href="https://github.com/pjotrcasteel">PjotrCasteel</a></div>
+    </div>
+    <div class="footer-links"><a href="./">Forge home</a> · <a href="https://www.nuget.org/packages/Forge.Sync">NuGet</a> · <a href="https://github.com/pjotrcasteel/Forge">GitHub</a></div>
+  </footer>
+
+  <script src="./story.js"></script>
+</body>
+</html>
