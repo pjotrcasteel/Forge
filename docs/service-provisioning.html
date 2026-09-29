@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Pjotr Casteel">
-  <title>Forge in production — from desired state to safe replan</title>
+  <title>Forge.Sync in production — from desired state to safe replan</title>
   <meta name="description" content="A two-minute visual story showing how Forge turns current and desired state into a typed plan, detects stale state, and replans around work already in flight.">
   <meta name="theme-color" content="#0b0c0f">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Forge in production — from desired state to safe replan">
+  <meta property="og:title" content="Forge.Sync in production — from desired state to safe replan">
   <meta property="og:description" content="Follow one real Forge scenario from Delta and Sync through dependency waves, manifests, stale-state protection and execution-aware replanning.">
   <meta property="og:url" content="https://pjotrcasteel.github.io/Forge/service-provisioning.html">
   <meta property="og:image" content="https://pjotrcasteel.github.io/Forge/social-preview.png">
@@ -46,7 +46,7 @@
         <div class="eyebrow"><span class="spark"></span> A two-minute production story</div>
         <h1>Plans are easy.<br><span>Reality moving underneath them is not.</span></h1>
         <p class="hero-lead">
-          One service change. Five moments. The exact scenario is backed by the runnable
+          One distributed application rollout. Five moments. The exact scenario is backed by the runnable
           <code>Forge.ServiceProvisioning.Sample</code> and its tests.
         </p>
         <div class="hero-actions">
@@ -81,8 +81,8 @@
           <div class="eyebrow">Current state ≠ desired state</div>
           <h2>The request looks simple until you make the transition explicit.</h2>
           <p>
-            The application already has an access service, router and legacy VPN. The new desired state
-            keeps access, changes the router, removes the VPN and introduces a firewall plus monitoring.
+            The application already has an database, API and legacy worker. The new desired state
+            keeps the database, updates the API, removes the legacy worker and introduces a policy engine plus telemetry.
           </p>
         </div>
       </div>
@@ -91,11 +91,11 @@
         <article class="topology-card current-card">
           <div class="topology-head"><span>CURRENT</span><small>what exists now</small></div>
           <div class="tree">
-            <div class="tree-node stable"><b>access</b><small>Access · rev 1</small></div>
+            <div class="tree-node stable"><b>database</b><small>Database · schema-v3</small></div>
             <div class="tree-branch">
-              <div class="tree-node change"><b>router</b><small>Router · rev 1 · edge-a</small></div>
+              <div class="tree-node change"><b>api</b><small>ApiService · rev 1 · stable</small></div>
               <div class="tree-branch">
-                <div class="tree-node remove"><b>legacy-vpn</b><small>LegacyVpn · vpn-v1</small></div>
+                <div class="tree-node remove"><b>legacy-worker</b><small>Worker · legacy-v1</small></div>
               </div>
             </div>
           </div>
@@ -106,13 +106,13 @@
         <article class="topology-card desired-card">
           <div class="topology-head"><span>DESIRED</span><small>what should exist</small></div>
           <div class="tree">
-            <div class="tree-node stable"><b>access</b><small>Access · rev 1</small></div>
+            <div class="tree-node stable"><b>database</b><small>Database · schema-v3</small></div>
             <div class="tree-branch">
-              <div class="tree-node change"><b>router</b><small>Router · rev 2 · edge-b</small></div>
+              <div class="tree-node change"><b>api</b><small>ApiService · rev 2 · optimized</small></div>
               <div class="tree-branch">
-                <div class="tree-node add"><b>firewall</b><small>Firewall · standard</small></div>
+                <div class="tree-node add"><b>policy-engine</b><small>PolicyEngine · standard</small></div>
                 <div class="tree-branch">
-                  <div class="tree-node add"><b>monitoring</b><small>Monitoring · enhanced</small></div>
+                  <div class="tree-node add"><b>telemetry</b><small>Telemetry · enhanced</small></div>
                 </div>
               </div>
             </div>
@@ -136,17 +136,17 @@
             <h2>Forge turns the gap into a typed plan.</h2>
             <p>
               Instead of one opaque “update service” instruction, the transition becomes inspectable.
-              The router update also carries its generated Delta, so the reason for the update remains available.
+              The api update also carries its generated Delta, so the reason for the update remains available.
             </p>
           </div>
         </div>
 
         <div class="plan-board reveal">
-          <div class="plan-result keep"><span>UNCHANGED</span><strong>access</strong><small>same logical state</small></div>
-          <div class="plan-result update"><span>UPDATE</span><strong>router</strong><small>Revision: 1 → 2 · Configuration: edge-a → edge-b</small></div>
-          <div class="plan-result add"><span>ADD</span><strong>firewall</strong><small>new desired component</small></div>
-          <div class="plan-result add"><span>ADD</span><strong>monitoring</strong><small>new desired component</small></div>
-          <div class="plan-result remove"><span>REMOVE</span><strong>legacy-vpn</strong><small>absent from complete desired state</small></div>
+          <div class="plan-result keep"><span>UNCHANGED</span><strong>database</strong><small>same logical state</small></div>
+          <div class="plan-result update"><span>UPDATE</span><strong>api</strong><small>Revision: 1 → 2 · Configuration: stable → optimized</small></div>
+          <div class="plan-result add"><span>ADD</span><strong>policy-engine</strong><small>new desired component</small></div>
+          <div class="plan-result add"><span>ADD</span><strong>telemetry</strong><small>new desired component</small></div>
+          <div class="plan-result remove"><span>REMOVE</span><strong>legacy-worker</strong><small>absent from complete desired state</small></div>
         </div>
 
         <div class="boundary-callout reveal">
@@ -154,12 +154,12 @@
             <span class="mono-label">IMPORTANT BOUNDARY</span>
             <h3>The plan still is not execution.</h3>
             <p>
-              The sample's <code>ProvisioningPlanBuilder</code> is application code. It translates structural
-              Forge results into the operation model this fictional provisioning application understands.
+              The sample's <code>RolloutPlanBuilder</code> is application code. It translates structural
+              Forge results into the operation model this fictional distributed application understands.
             </p>
           </div>
           <div class="boundary-flow">
-            <b>Forge SyncPlan</b><i>→</i><b>application classification</b><i>→</i><b>ProvisioningOperation</b>
+            <b>Forge SyncPlan</b><i>→</i><b>application classification</b><i>→</i><b>RolloutOperation</b>
           </div>
         </div>
       </div>
@@ -172,7 +172,7 @@
           <div class="eyebrow">Dependency-aware planning</div>
           <h2>Knowing the operations is not enough. Order can be part of correctness.</h2>
           <p>
-            The firewall depends on the router operation. Monitoring depends on the firewall. Forge calculates
+            The policy-engine depends on the api operation. Telemetry depends on the policy-engine. Forge calculates
             deterministic execution waves without performing any operation.
           </p>
         </div>
@@ -181,18 +181,18 @@
       <div class="wave-board reveal">
         <article>
           <span>WAVE 1</span>
-          <div><b>Update router</b><small>can start immediately</small></div>
-          <div><b>Remove legacy-vpn</b><small>independent in this application plan</small></div>
+          <div><b>Update api</b><small>can start immediately</small></div>
+          <div><b>Remove legacy-worker</b><small>independent in this application plan</small></div>
         </article>
         <i>→</i>
         <article>
           <span>WAVE 2</span>
-          <div><b>Add firewall</b><small>after router operation</small></div>
+          <div><b>Add policy-engine</b><small>after api operation</small></div>
         </article>
         <i>→</i>
         <article>
           <span>WAVE 3</span>
-          <div><b>Add monitoring</b><small>after firewall operation</small></div>
+          <div><b>Add telemetry</b><small>after policy-engine operation</small></div>
         </article>
       </div>
 
@@ -222,7 +222,7 @@
             <div class="eyebrow">Time passes</div>
             <h2>The dangerous assumption is that the world still looks like it did during planning.</h2>
             <p>
-              Before the stored plan executes, another process applies an emergency router change.
+              Before the stored plan executes, another process applies an emergency api change.
               The old plan is structurally valid—but it is no longer valid against current reality.
             </p>
           </div>
@@ -231,14 +231,14 @@
         <div class="stale-grid reveal">
           <article>
             <span class="mono-label">PLANNED AGAINST</span>
-            <div class="state-snapshot"><b>router</b><strong>rev 1</strong><small>edge-a</small></div>
+            <div class="state-snapshot"><b>api</b><strong>rev 1</strong><small>stable</small></div>
           </article>
           <div class="time-gap">
             <span>time</span><i>→</i><small>another actor changes state</small>
           </div>
           <article>
             <span class="mono-label">ACTUAL NOW</span>
-            <div class="state-snapshot danger"><b>router</b><strong>rev 7</strong><small>emergency-hotfix</small></div>
+            <div class="state-snapshot danger"><b>api</b><strong>rev 7</strong><small>emergency-hotfix</small></div>
           </article>
         </div>
 
@@ -247,7 +247,7 @@
           <div>
             <span class="mono-label">MANIFEST PRECONDITION</span>
             <h3>Reject the stale plan.</h3>
-            <p><code>ManifestPreconditions.Validate(...)</code> reports <b>router</b> as changed since planning.</p>
+            <p><code>ManifestPreconditions.Validate(...)</code> reports <b>api</b> as changed since planning.</p>
           </div>
           <strong>DO NOT EXECUTE</strong>
         </div>
@@ -273,16 +273,16 @@
 
       <div class="execution-lane reveal">
         <div class="execution-row completed">
-          <span>COMPLETED</span><b>Update router</b><small>cannot be silently un-executed</small>
+          <span>COMPLETED</span><b>Update api</b><small>cannot be silently un-executed</small>
         </div>
         <div class="execution-row running">
-          <span>RUNNING</span><b>Add firewall · standard</b><small>new desired state now wants strict</small>
+          <span>RUNNING</span><b>Add policy-engine · standard</b><small>new desired state now wants strict</small>
         </div>
         <div class="execution-row waiting">
-          <span>WAITING</span><b>Add monitoring</b><small>no longer desired</small>
+          <span>WAITING</span><b>Add telemetry</b><small>no longer desired</small>
         </div>
         <div class="execution-row waiting">
-          <span>WAITING</span><b>Remove legacy-vpn</b><small>legacy VPN is desired again</small>
+          <span>WAITING</span><b>Remove legacy-worker</b><small>legacy VPN is desired again</small>
         </div>
       </div>
 
@@ -291,27 +291,27 @@
       <div class="replan-outcomes reveal">
         <article class="locked">
           <span>LOCKED</span>
-          <strong>router</strong>
+          <strong>api</strong>
           <p>Completed equivalent work remains part of reality.</p>
         </article>
         <article class="intervention">
           <span>INTERVENTION</span>
-          <strong>firewall</strong>
+          <strong>policy-engine</strong>
           <p>The running operation's semantics changed. Application policy must decide what happens next.</p>
         </article>
         <article class="safe">
           <span>SAFE CHANGE</span>
-          <strong>monitoring</strong>
+          <strong>telemetry</strong>
           <p>Waiting operation can be cancelled before it starts.</p>
         </article>
         <article class="safe">
           <span>SAFE CHANGE</span>
-          <strong>legacy-vpn</strong>
+          <strong>legacy-worker</strong>
           <p>Pending removal can be cancelled because the item is desired again.</p>
         </article>
         <article class="new">
           <span>NEW</span>
-          <strong>dns</strong>
+          <strong>queue</strong>
           <p>A newly required operation enters the next plan.</p>
         </article>
       </div>
