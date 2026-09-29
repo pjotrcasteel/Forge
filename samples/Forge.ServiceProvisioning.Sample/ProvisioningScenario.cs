@@ -10,9 +10,9 @@ public static class ProvisioningScenario
         var desired = CreateDesiredState();
 
         var plan = ServiceComponentSync.Plan(current, desired);
-        var routerUpdate = plan.Updated.Single(update =>
-            string.Equals(update.Desired.Id, "router", StringComparison.Ordinal));
-        var routerChangePaths = routerUpdate.Delta.Changes
+        var apiUpdate = plan.Updated.Single(update =>
+            string.Equals(update.Desired.Id, "api", StringComparison.Ordinal));
+        var apiChangePaths = apiUpdate.Delta.Changes
             .Select(static change => change.Path)
             .ToArray();
 
@@ -67,7 +67,7 @@ public static class ProvisioningScenario
             plan.Updated.Count,
             plan.Removed.Count,
             plan.Unchanged.Count,
-            routerChangePaths,
+            apiChangePaths,
             executionWaves,
             manifest.OperationCount,
             manifestJson,
@@ -84,9 +84,9 @@ public static class ProvisioningScenario
     {
         return
         [
-            new ServiceComponent("access", "Access", 1, "fiber-1g", null),
-            new ServiceComponent("router", "Router", 1, "edge-a", "access"),
-            new ServiceComponent("legacy-vpn", "LegacyVpn", 1, "vpn-v1", "router")
+            new ServiceComponent("database", "Database", 1, "schema-v3", null),
+            new ServiceComponent("api", "ApiService", 1, "stable", "database"),
+            new ServiceComponent("legacy-worker", "Worker", 1, "legacy-v1", "api")
         ];
     }
 
@@ -94,10 +94,10 @@ public static class ProvisioningScenario
     {
         return
         [
-            new ServiceComponent("access", "Access", 1, "fiber-1g", null),
-            new ServiceComponent("router", "Router", 2, "edge-b", "access"),
-            new ServiceComponent("firewall", "Firewall", 1, "standard", "router"),
-            new ServiceComponent("monitoring", "Monitoring", 1, "enhanced", "firewall")
+            new ServiceComponent("database", "Database", 1, "schema-v3", null),
+            new ServiceComponent("api", "ApiService", 2, "optimized", "database"),
+            new ServiceComponent("policy-engine", "PolicyEngine", 1, "standard", "api"),
+            new ServiceComponent("telemetry", "Telemetry", 1, "enhanced", "policy-engine")
         ];
     }
 
@@ -105,9 +105,9 @@ public static class ProvisioningScenario
     {
         return
         [
-            new ServiceComponent("access", "Access", 1, "fiber-1g", null),
-            new ServiceComponent("router", "Router", 7, "emergency-hotfix", "access"),
-            new ServiceComponent("legacy-vpn", "LegacyVpn", 1, "vpn-v1", "router")
+            new ServiceComponent("database", "Database", 1, "schema-v3", null),
+            new ServiceComponent("api", "ApiService", 7, "emergency-hotfix", "database"),
+            new ServiceComponent("legacy-worker", "Worker", 1, "legacy-v1", "api")
         ];
     }
 
@@ -115,11 +115,11 @@ public static class ProvisioningScenario
     {
         return
         [
-            new ServiceComponent("access", "Access", 1, "fiber-1g", null),
-            new ServiceComponent("router", "Router", 2, "edge-b", "access"),
-            new ServiceComponent("firewall", "Firewall", 2, "strict", "router"),
-            new ServiceComponent("dns", "DnsResolver", 1, "resolver-v1", "firewall"),
-            new ServiceComponent("legacy-vpn", "LegacyVpn", 1, "vpn-v1", "router")
+            new ServiceComponent("database", "Database", 1, "schema-v3", null),
+            new ServiceComponent("api", "ApiService", 2, "optimized", "database"),
+            new ServiceComponent("policy-engine", "PolicyEngine", 2, "strict", "api"),
+            new ServiceComponent("queue", "MessageQueue", 1, "durable-v1", "policy-engine"),
+            new ServiceComponent("legacy-worker", "Worker", 1, "legacy-v1", "api")
         ];
     }
 
@@ -142,10 +142,10 @@ public static class ProvisioningScenario
             static operation => operation.OperationId,
             static operation => operation.Operation.TargetId switch
             {
-                "router" => ExecutionState.Completed,
-                "firewall" => ExecutionState.Running,
-                "monitoring" => ExecutionState.Waiting,
-                "legacy-vpn" => ExecutionState.Waiting,
+                "api" => ExecutionState.Completed,
+                "policy-engine" => ExecutionState.Running,
+                "telemetry" => ExecutionState.Waiting,
+                "legacy-worker" => ExecutionState.Waiting,
                 _ => throw new InvalidOperationException(
                     $"No execution state was defined for '{operation.Operation.TargetId}'.")
             });
