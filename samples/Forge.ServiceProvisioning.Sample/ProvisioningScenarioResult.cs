@@ -5,7 +5,7 @@ public sealed record ProvisioningScenarioResult(
     int UpdatedCount,
     int RemovedCount,
     int UnchangedCount,
-    IReadOnlyList<string> RouterChangePaths,
+    IReadOnlyList<string> ApiChangePaths,
     IReadOnlyList<ExecutionWaveSummary> ExecutionWaves,
     int ManifestOperationCount,
     string ManifestJson,
