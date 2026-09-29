@@ -15,18 +15,18 @@ public sealed class ProvisioningScenarioTests
         Assert.AreEqual(1, result.UpdatedCount);
         Assert.AreEqual(1, result.RemovedCount);
         Assert.AreEqual(1, result.UnchangedCount);
-        CollectionAssert.Contains(result.RouterChangePaths.ToArray(), "Revision");
-        CollectionAssert.Contains(result.RouterChangePaths.ToArray(), "Configuration");
+        CollectionAssert.Contains(result.ApiChangePaths.ToArray(), "Revision");
+        CollectionAssert.Contains(result.ApiChangePaths.ToArray(), "Configuration");
 
         Assert.AreEqual(3, result.ExecutionWaves.Count);
         CollectionAssert.AreEqual(
-            new[] { "Update:router", "Remove:legacy-vpn" },
+            new[] { "Update:api", "Remove:legacy-worker" },
             result.ExecutionWaves[0].Operations.ToArray());
         CollectionAssert.AreEqual(
-            new[] { "Add:firewall" },
+            new[] { "Add:policy-engine" },
             result.ExecutionWaves[1].Operations.ToArray());
         CollectionAssert.AreEqual(
-            new[] { "Add:monitoring" },
+            new[] { "Add:telemetry" },
             result.ExecutionWaves[2].Operations.ToArray());
     }
 
@@ -42,7 +42,7 @@ public sealed class ProvisioningScenarioTests
         Assert.AreEqual(result.ManifestOperationCount, parsedManifest.OperationCount);
         Assert.IsTrue(result.OriginalStateAccepted);
         Assert.IsFalse(result.ChangedStateAccepted);
-        CollectionAssert.AreEqual(new[] { "router" }, result.StaleKeys.ToArray());
+        CollectionAssert.AreEqual(new[] { "api" }, result.StaleKeys.ToArray());
     }
 
     [TestMethod]
