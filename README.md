@@ -4,7 +4,7 @@
 >
 > **Website:** https://pjotrcasteel.github.io/Forge/ · **Forge.Delta:** https://www.nuget.org/packages/Forge.Delta · **Forge.Sync:** https://www.nuget.org/packages/Forge.Sync · **Forge.Parse:** https://www.nuget.org/packages/Forge.Parse · **Source:** https://github.com/pjotrcasteel/Forge
 
-Forge turns **current state + desired state** into explicit, typed transition plans while persistence, transport, workflow policy, authorization, and execution remain in your application.
+Forge is an umbrella for focused .NET libraries that solve different state and structured-data problems without becoming an application framework.
 
 Use **Forge.Delta** when the question is _“what changed inside this object?”_  
 Use **Forge.Sync** when the question is _“how does the state I have become the state I want?”_  
@@ -16,7 +16,7 @@ Normal generated Delta/Sync hot paths use direct property access and dictionarie
 
 ## When Forge is useful
 
-Forge is a strong fit when application correctness depends on one or more of these problems:
+Choose the subproject that matches the problem. Forge is a strong fit when application correctness depends on one or more of these problems:
 
 - semantic object change detection;
 - desired-state reconciliation;
@@ -245,9 +245,9 @@ Applications keep their own identity, state, fact, scope, reason, metric, and vi
 
 <a id="boundary"></a>
 
-## The execution boundary
+## The family boundary
 
-Forge calculates, classifies, validates, explains, and simulates transitions.
+Forge packages calculate and describe results without taking ownership of your application. Delta compares, Sync plans, and Parse matches structured expectations.
 
 Forge does **not**:
 
