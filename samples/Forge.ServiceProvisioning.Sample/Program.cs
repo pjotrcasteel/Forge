@@ -6,7 +6,7 @@ public static class Program
     {
         var result = ProvisioningScenario.Run();
 
-        Console.WriteLine("FORGE SERVICE PROVISIONING SAMPLE");
+        Console.WriteLine("FORGE DISTRIBUTED ROLLOUT SAMPLE");
         Console.WriteLine("=================================");
         Console.WriteLine();
         Console.WriteLine("1. DELTA + SYNC");
@@ -14,7 +14,7 @@ public static class Program
         Console.WriteLine($"Updated: {result.UpdatedCount}");
         Console.WriteLine($"Removed: {result.RemovedCount}");
         Console.WriteLine($"Unchanged: {result.UnchangedCount}");
-        Console.WriteLine($"Router changes: {string.Join(", ", result.RouterChangePaths)}");
+        Console.WriteLine($"API changes: {string.Join(", ", result.ApiChangePaths)}");
         Console.WriteLine();
 
         Console.WriteLine("2. DEPENDENCY WAVES");

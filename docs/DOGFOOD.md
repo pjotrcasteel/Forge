@@ -1,10 +1,10 @@
 # Dogfood conclusions
 
-The 0.7 milestone applies Forge to service-orchestration-shaped models without adding those concepts to runtime packages.
+The 0.7 milestone applies Forge to production-shaped models without adding those concepts to runtime packages.
 
-## Desired-state change
+## Desired-state rollout
 
-A logical service collection can be reconciled with a newly decomposed desired collection. Sync determines add, update, remove and unchanged items; Delta explains the mutable-state differences of updates.
+A logical component collection can be reconciled with a newly computed desired collection. Sync determines add, update, remove and unchanged items; Delta explains the mutable-state differences of updates.
 
 Key properties remain identity, not mutable state.
 
@@ -26,4 +26,4 @@ No cancellation-specific API was added. This is intentional.
 
 ## Forge 1.0 extended dogfood
 
-The 1.0 capability train adds cross-type reconciliation, operation planning, dependency waves, topology planning, reversible plans, portable manifests, stale-plan validation and batch composition. See `REAL_WORLD_FULFILMENT_1_0.md` for a concrete example against the current Fulfilment characteristic-upsert shape and the future Change flow.
+The 1.0 capability train adds cross-type reconciliation, operation planning, dependency waves, topology planning, reversible plans, portable manifests, stale-plan validation and batch composition. See `GENERIC_DISTRIBUTED_ROLLOUT.md` for a concrete distributed application example covering partial configuration updates, complete desired state, dependency waves, stale-state protection and execution-aware replanning.

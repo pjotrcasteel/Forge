@@ -31,8 +31,9 @@ Forge does not persist state, call external systems, publish messages, authorize
 - API contract: https://github.com/pjotrcasteel/Forge/blob/main/docs/API_CONTRACT.md
 - Design: https://github.com/pjotrcasteel/Forge/blob/main/docs/DESIGN.md
 - Reconciliation: https://github.com/pjotrcasteel/Forge/blob/main/docs/RECONCILIATION.md
-- Production story: https://pjotrcasteel.github.io/Forge/service-provisioning.html
-- Production-style example: https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample
+- Production rollout story: https://pjotrcasteel.github.io/Forge/service-provisioning.html
+- Production-style distributed rollout example: https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample
+- Generic rollout dogfood: https://github.com/pjotrcasteel/Forge/blob/main/docs/GENERIC_DISTRIBUTED_ROLLOUT.md
 
 ## Important semantics
 
