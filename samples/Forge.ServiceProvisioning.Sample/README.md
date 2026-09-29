@@ -1,42 +1,42 @@
-# Forge.ServiceProvisioning.Sample
+# Generic Distributed Rollout Sample
 
-A runnable production-style Forge example.
+A runnable production-style Forge.Sync example using a fictional distributed application.
 
 **Two-minute visual story:** https://pjotrcasteel.github.io/Forge/service-provisioning.html
 
-The sample starts with an existing service state:
+The current application state is:
 
 ```text
-access
-└── router
-    └── legacy-vpn
+database
+└── api
+    └── legacy-worker
 ```
 
 The requested desired state is:
 
 ```text
-access
-└── router (configuration update)
-    └── firewall (new)
-        └── monitoring (new)
+database
+└── api (revision/configuration update)
+    └── policy-engine (new)
+        └── telemetry (new)
 ```
 
 Forge therefore describes one unchanged component, one update with typed Delta details, two additions, one removal, dependency-safe execution waves, and a portable manifest with a canonical digest.
 
-The sample then deliberately changes the current router state after planning. The manifest precondition check rejects that plan as stale.
+The sample then deliberately changes the current API state after planning. The manifest precondition check rejects that plan as stale.
 
 Finally, execution is assumed to have partially started:
 
 ```text
-router update      completed
-firewall add       running
-monitoring add     waiting
-legacy-vpn remove  waiting
+api update             completed
+policy-engine add      running
+telemetry add          waiting
+legacy-worker remove   waiting
 ```
 
-A revised desired state arrives while that work is in flight. The example uses `ExecutedReplanner` to distinguish completed work that must remain locked, running work whose changed semantics require application intervention, waiting work that can be cancelled safely, and newly required work.
+A revised desired state arrives while that work is in flight. The example uses `ExecutedReplanner` to distinguish completed work that must remain locked, running work whose changed semantics require application intervention, waiting work that can be cancelled safely, and newly required work such as a message queue.
 
-Forge still does not execute anything. `ProvisioningPlanBuilder` is intentionally application code: it translates the structural Sync plan into the operation model this fictional application would execute.
+Forge still does not execute anything. `ProvisioningPlanBuilder` is intentionally application code: it translates the structural Sync plan into the operation model this fictional distributed application would execute.
 
 ## Run
 
@@ -68,4 +68,4 @@ ManifestPreconditions
 ExecutedReplanner
 ```
 
-The point is not the provisioning domain. The same pattern applies to configuration rollout, infrastructure desired state, product decomposition, deployment planning and other systems where current state and desired state are separated from execution.
+The domain is intentionally generic. The same pattern can apply to application rollouts, infrastructure desired state, deployment planning, workflow graphs, product configuration, or data-pipeline orchestration.
