@@ -1,13 +1,14 @@
 # Forge 1.20.0
 
-> Strongly typed state transition planning for .NET 10.
+> Strongly typed state transitions and structured test expectations for .NET 10.
 >
-> **Website:** https://pjotrcasteel.github.io/Forge/ · **Forge.Sync:** https://www.nuget.org/packages/Forge.Sync · **Forge.Delta:** https://www.nuget.org/packages/Forge.Delta · **Source:** https://github.com/pjotrcasteel/Forge
+> **Website:** https://pjotrcasteel.github.io/Forge/ · **Forge.Delta:** https://www.nuget.org/packages/Forge.Delta · **Forge.Sync:** https://www.nuget.org/packages/Forge.Sync · **Forge.Parse:** https://www.nuget.org/packages/Forge.Parse · **Source:** https://github.com/pjotrcasteel/Forge
 
 Forge turns **current state + desired state** into explicit, typed transition plans while persistence, transport, workflow policy, authorization, and execution remain in your application.
 
 Use **Forge.Delta** when the question is _“what changed inside this object?”_  
-Use **Forge.Sync** when the question is _“how does the state I have become the state I want?”_
+Use **Forge.Sync** when the question is _“how does the state I have become the state I want?”_  
+Use **Forge.Parse** when the question is _“does this dynamic structured output satisfy the expectation I care about?”_
 
 Normal generated Delta/Sync hot paths use direct property access and dictionaries: no runtime reflection, dynamic proxies, hidden I/O, or mandatory dependency injection.
 
@@ -49,6 +50,14 @@ dotnet add package Forge.Sync --version 1.20.0
 ```
 
 Installing `Forge.Sync` also brings in `Forge.Delta`.
+
+For structured JSON expectations in tests:
+
+```bash
+dotnet add package Forge.Parse --version 1.20.0
+```
+
+For Reqnroll DataTable integration, add `Forge.Parse.Reqnroll`.
 
 <a id="your-first-delta"></a>
 
@@ -150,6 +159,7 @@ This distinction is explicit so a partial payload cannot accidentally become a d
 | --- | --- |
 | What changed inside one object? | `Forge.Delta` |
 | Which keyed items were added/updated/removed? | generated `Forge.Sync` |
+| Does dynamic JSON satisfy a readable structured expectation? | `Forge.Parse` |
 | Current and desired use different CLR types | cross-type reconciliation |
 | More than one legitimate identity route exists | ordered fallback identity |
 | Operations depend on other operations | `DependencyPlanner` |
@@ -273,7 +283,7 @@ That boundary keeps planning deterministic, testable, and infrastructure-indepen
 ## Documentation
 
 - **[Website](https://pjotrcasteel.github.io/Forge/):** visual introduction, interactive planning examples, package choice, and AI-agent context.
-- **This README:** package choice, first Delta/Sync, planning boundary, and common capabilities.
+- **This README:** package choice, first Delta/Sync/Parse usage, planning boundary, and common capabilities.
 - **[API_CONTRACT.md](docs/API_CONTRACT.md):** stable generated/runtime contracts across Forge 1.x.
 - **[DESIGN.md](docs/DESIGN.md):** semantics, source-generation model, extension rules, safety, and complexity.
 - **[RECONCILIATION.md](docs/RECONCILIATION.md):** reconciliation details and identity semantics.

@@ -1,6 +1,6 @@
 # Forge
 
-> Strongly typed state transition planning for .NET 10.
+> Strongly typed state transitions and structured test expectations for .NET 10.
 
 Forge is an MIT-licensed .NET library family by Pjotr Casteel.
 
@@ -13,6 +13,10 @@ Canonical repository: https://github.com/pjotrcasteel/Forge
   - NuGet: https://www.nuget.org/packages/Forge.Delta
 - Forge.Sync — source-generated desired-state reconciliation and typed planning. Depends on Forge.Delta.
   - NuGet: https://www.nuget.org/packages/Forge.Sync
+- Forge.Parse — structured JSON expectation matching for dynamic test output.
+  - NuGet: https://www.nuget.org/packages/Forge.Parse
+- Forge.Parse.Reqnroll — optional Reqnroll DataTable adapter over Forge.Parse.
+  - NuGet: https://www.nuget.org/packages/Forge.Parse.Reqnroll
 
 Current family version: 1.20.0
 
@@ -34,6 +38,7 @@ Forge does not persist state, call external systems, publish messages, authorize
 
 - Delta answers: what changed inside one object?
 - Sync answers: how do keyed current and desired collections differ?
+- Parse answers: does dynamic structured output satisfy the expectation that matters?
 - Replace means complete desired state; current-only items may be removed.
 - Upsert means partial desired input; current-only items are preserved.
 - Generated normal hot paths use direct property access rather than runtime reflection.

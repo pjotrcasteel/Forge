@@ -40,8 +40,7 @@ def metadata(nuspec: ET.Element) -> ET.Element:
 
 
 def read_nuspec(archive: zipfile.ZipFile, package_name: str) -> ET.Element:
-    names = archive.namelist()
-    nuspec_names = [name for name in names if name.endswith(".nuspec")]
+    nuspec_names = [name for name in archive.namelist() if name.endswith(".nuspec")]
     if len(nuspec_names) != 1:
         fail(f"{package_name} must contain exactly one nuspec")
     return ET.fromstring(archive.read(nuspec_names[0]))
@@ -53,13 +52,17 @@ def dependency_map(nuspec: ET.Element) -> dict[str, str]:
         if local_name(element) != "dependency":
             continue
         package_id = element.attrib.get("id")
-        if package_id is None:
-            continue
-        result[package_id] = element.attrib.get("version", "")
+        if package_id is not None:
+            result[package_id] = element.attrib.get("version", "")
     return result
 
 
-def verify_metadata(nuspec: ET.Element, package_id: str, version: str) -> None:
+def verify_metadata(
+    nuspec: ET.Element,
+    package_id: str,
+    version: str,
+    require_source_generator_tag: bool,
+) -> None:
     data = metadata(nuspec)
 
     if child_text(data, "id") != package_id:
@@ -81,6 +84,7 @@ def verify_metadata(nuspec: ET.Element, package_id: str, version: str) -> None:
     repository = repository_elements[0]
     if repository.attrib.get("type") != "git" or repository.attrib.get("url") != REPOSITORY_URL:
         fail(f"{package_id} must point repository metadata at {REPOSITORY_URL}")
+
     require_license_acceptance = child_text(data, "requireLicenseAcceptance")
     if require_license_acceptance is not None and require_license_acceptance.lower() != "false":
         fail(f"{package_id} must not require license acceptance")
@@ -93,11 +97,11 @@ def verify_metadata(nuspec: ET.Element, package_id: str, version: str) -> None:
         fail(f"{package_id} must use the MIT SPDX license expression")
 
     tags = set((child_text(data, "tags") or "").replace(";", " ").split())
-    if "source-generator" not in tags:
+    if require_source_generator_tag and "source-generator" not in tags:
         fail(f"{package_id} package tags must include source-generator")
 
 
-def verify_main_package(
+def verify_generated_package(
     path: Path,
     package_id: str,
     version: str,
@@ -125,11 +129,6 @@ def verify_main_package(
             for name in names
         ):
             fail(f"{path.name} exposes its generator as a runtime library")
-        if any(
-            name.startswith("analyzers/") and Path(name).name == f"{runtime_assembly}.dll"
-            for name in names
-        ):
-            fail(f"{path.name} exposes its runtime assembly as an analyzer")
         if any("Microsoft.CodeAnalysis" in name and name.endswith(".dll") for name in names):
             fail(f"{path.name} must not embed Roslyn assemblies")
         if any(name.endswith(".cs") for name in names):
@@ -140,7 +139,42 @@ def verify_main_package(
             fail(f"{path.name} does not contain its package-specific README")
 
         nuspec = read_nuspec(archive, path.name)
-        verify_metadata(nuspec, package_id, version)
+        verify_metadata(nuspec, package_id, version, True)
+        return nuspec
+
+
+def verify_runtime_package(
+    path: Path,
+    package_id: str,
+    version: str,
+    runtime_assembly: str,
+    readme_heading: str,
+) -> ET.Element:
+    with zipfile.ZipFile(path) as archive:
+        names = set(archive.namelist())
+        required = {
+            "README.md",
+            "CHANGELOG.md",
+            "LICENSE",
+            "forge-icon.png",
+            f"lib/net10.0/{runtime_assembly}.dll",
+            f"lib/net10.0/{runtime_assembly}.xml",
+        }
+        missing = required - names
+        if missing:
+            fail(f"{path.name} is missing: {', '.join(sorted(missing))}")
+
+        if any(name.startswith("analyzers/") for name in names):
+            fail(f"{path.name} must not contain analyzer assemblies")
+        if any(name.endswith(".cs") for name in names):
+            fail(f"{path.name} unexpectedly contains C# source files")
+
+        readme = archive.read("README.md").decode("utf-8-sig")
+        if not readme.startswith(readme_heading):
+            fail(f"{path.name} does not contain its package-specific README")
+
+        nuspec = read_nuspec(archive, path.name)
+        verify_metadata(nuspec, package_id, version, False)
         return nuspec
 
 
@@ -153,6 +187,15 @@ def verify_symbol_package(path: Path, runtime_assembly: str) -> None:
         read_nuspec(archive, path.name)
 
 
+def require_matching_dependency(
+    dependencies: dict[str, str],
+    package_id: str,
+    version: str,
+) -> None:
+    if package_id not in dependencies or version not in dependencies[package_id]:
+        fail(f"Expected dependency on {package_id} {version}, found: {dependencies}")
+
+
 def main() -> None:
     if len(sys.argv) != 3:
         fail("Usage: verify_packages.py <package-directory> <version>")
@@ -160,22 +203,19 @@ def main() -> None:
     directory = Path(sys.argv[1])
     version = sys.argv[2]
 
-    delta = package_file(directory, "Forge.Delta", version, "nupkg")
-    delta_nuspec = verify_main_package(
-        delta,
+    delta_nuspec = verify_generated_package(
+        package_file(directory, "Forge.Delta", version, "nupkg"),
         "Forge.Delta",
         version,
         "Forge.Delta",
         "Forge.Delta.Generators",
         "# Forge.Delta",
     )
-    delta_dependencies = dependency_map(delta_nuspec)
-    if delta_dependencies:
-        fail(f"Forge.Delta must have no package dependencies, found: {', '.join(sorted(delta_dependencies))}")
+    if dependency_map(delta_nuspec):
+        fail("Forge.Delta must have no package dependencies")
 
-    sync = package_file(directory, "Forge.Sync", version, "nupkg")
-    sync_nuspec = verify_main_package(
-        sync,
+    sync_nuspec = verify_generated_package(
+        package_file(directory, "Forge.Sync", version, "nupkg"),
         "Forge.Sync",
         version,
         "Forge.Sync",
@@ -185,19 +225,37 @@ def main() -> None:
     sync_dependencies = dependency_map(sync_nuspec)
     if set(sync_dependencies) != {"Forge.Delta"}:
         fail("Forge.Sync must depend only on Forge.Delta")
-    if version not in sync_dependencies["Forge.Delta"]:
-        fail("Forge.Sync must depend on the matching Forge.Delta package version")
+    require_matching_dependency(sync_dependencies, "Forge.Delta", version)
 
-    verify_symbol_package(
-        package_file(directory, "Forge.Delta", version, "snupkg"),
-        "Forge.Delta",
+    parse_nuspec = verify_runtime_package(
+        package_file(directory, "Forge.Parse", version, "nupkg"),
+        "Forge.Parse",
+        version,
+        "Forge.Parse",
+        "# Forge.Parse",
     )
-    verify_symbol_package(
-        package_file(directory, "Forge.Sync", version, "snupkg"),
-        "Forge.Sync",
-    )
+    if dependency_map(parse_nuspec):
+        fail("Forge.Parse must have no package dependencies")
 
-    print("Package metadata, layout, dependency, README, XML-doc, and symbol validation passed.")
+    reqnroll_nuspec = verify_runtime_package(
+        package_file(directory, "Forge.Parse.Reqnroll", version, "nupkg"),
+        "Forge.Parse.Reqnroll",
+        version,
+        "Forge.Parse.Reqnroll",
+        "# Forge.Parse.Reqnroll",
+    )
+    reqnroll_dependencies = dependency_map(reqnroll_nuspec)
+    require_matching_dependency(reqnroll_dependencies, "Forge.Parse", version)
+    if "Reqnroll" not in reqnroll_dependencies:
+        fail("Forge.Parse.Reqnroll must depend on Reqnroll")
+
+    for package_id in ["Forge.Delta", "Forge.Sync", "Forge.Parse", "Forge.Parse.Reqnroll"]:
+        verify_symbol_package(
+            package_file(directory, package_id, version, "snupkg"),
+            package_id,
+        )
+
+    print("Forge package metadata, layout, dependency, README, XML-doc, and symbol validation passed.")
 
 
 if __name__ == "__main__":

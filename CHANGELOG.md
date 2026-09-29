@@ -2,6 +2,8 @@
 
 ## 1.20.0
 
+- Added Forge.Parse as the third core Forge package for structured JSON expectation matching with dynamic placeholders, capture/reuse semantics, partial/exact/unordered matching, custom matchers, and structured diagnostics.
+- Added Forge.Parse.Reqnroll as an optional thin DataTable adapter over the same matching engine.
 - Added typed composite topology transitions that combine application-defined topology plans without erasing their domain types.
 - Added consumer-extensible cross-topology invariants, composite dependency ordering, and cycle-aware validity.
 

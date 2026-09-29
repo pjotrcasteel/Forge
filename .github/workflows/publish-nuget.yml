@@ -45,6 +45,8 @@ jobs:
         run: |
           dotnet pack src/Forge.Delta/Forge.Delta.csproj -c Release --no-build -o artifacts/packages
           dotnet pack src/Forge.Sync/Forge.Sync.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Parse/Forge.Parse.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Parse.Reqnroll/Forge.Parse.Reqnroll.csproj -c Release --no-build -o artifacts/packages
 
       - name: Validate package layout and metadata
         run: python eng/verify_packages.py artifacts/packages "${{ steps.package_version.outputs.version }}"
@@ -70,6 +72,18 @@ jobs:
               --force-evaluate
           NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" \
             dotnet run --project tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj \
+              -c Release \
+              --no-restore
+
+      - name: Validate Forge.Parse packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/parse
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/parse" \
+            dotnet restore tests/Forge.Parse.PackageConsumer/Forge.Parse.PackageConsumer.csproj \
+              --source artifacts/packages \
+              --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/parse" \
+            dotnet run --project tests/Forge.Parse.PackageConsumer/Forge.Parse.PackageConsumer.csproj \
               -c Release \
               --no-restore
 
@@ -101,6 +115,22 @@ jobs:
         run: >-
           dotnet nuget push
           "artifacts/packages/Forge.Sync.${{ steps.package_version.outputs.version }}.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Publish Forge.Parse
+        run: >-
+          dotnet nuget push
+          "artifacts/packages/Forge.Parse.${{ steps.package_version.outputs.version }}.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
+          --skip-duplicate
+
+      - name: Publish Forge.Parse.Reqnroll
+        run: >-
+          dotnet nuget push
+          "artifacts/packages/Forge.Parse.Reqnroll.${{ steps.package_version.outputs.version }}.nupkg"
           --api-key "${{ secrets.NUGET_API_KEY }}"
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
