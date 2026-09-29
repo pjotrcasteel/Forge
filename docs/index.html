@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Pjotr Casteel">
   <title>Forge — Plan state transitions without owning execution</title>
-  <meta name="description" content="Strongly typed, source-generated Delta and desired-state reconciliation for .NET 10. Forge turns current and desired state into explicit, explainable transition plans while execution stays in your application.">
+  <meta name="description" content="Forge is a .NET 10 library family for strongly typed Delta, desired-state reconciliation, and structured JSON expectation matching.">
   <meta name="theme-color" content="#0b0c0f">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Forge — Plan the transition. Keep execution yours.">
-  <meta property="og:description" content="Typed Delta, reconciliation and transition planning for .NET 10.">
+  <meta property="og:description" content="Typed Delta, reconciliation, transition planning and structured JSON expectation matching for .NET 10.">
   <meta property="og:url" content="https://pjotrcasteel.github.io/Forge/">
   <meta property="og:image" content="https://pjotrcasteel.github.io/Forge/social-preview.png">
   <meta property="og:image:width" content="1200">
@@ -122,7 +122,7 @@
 
     <section class="signal-strip" aria-label="Forge capabilities">
       <div class="container signals">
-        <span>Delta</span><span>Desired-state reconciliation</span><span>Dependency waves</span><span>Portable manifests</span>
+        <span>Delta</span><span>Desired-state reconciliation</span><span>Structured JSON matching</span><span>Dependency waves</span><span>Portable manifests</span>
         <span>Stale-plan checks</span><span>Typed replanning</span><span>Topology transitions</span>
       </div>
     </section>
@@ -211,7 +211,7 @@
 
     <section id="building-blocks" class="section container">
       <div class="section-heading reveal">
-        <div class="eyebrow">Two entry points, one design language</div>
+        <div class="eyebrow">Three core packages, one design language</div>
         <h2>Start at the smallest useful primitive.</h2>
         <p>Forge is a family, but you do not need the whole family for every problem.</p>
       </div>
@@ -238,11 +238,23 @@ public sealed record OrderItem(...);
 var plan = OrderItemSync.Plan(current, desired);</code></pre>
           <a class="text-link" href="https://www.nuget.org/packages/Forge.Sync">Forge.Sync on NuGet →</a>
         </article>
+
+        <article class="package-card parse-card reveal delay-1">
+          <div class="package-top"><span class="package-mark">{ }</span><span class="mono-label">FORGE.PARSE</span></div>
+          <h3>Does dynamic JSON satisfy the expectation that matters?</h3>
+          <p>Readable structured matching for generated IDs, timestamps, partial payloads, unordered arrays and cross-field relationships without brittle normalization code.</p>
+          <pre><code>JsonAssert.Matches(
+    """{ "id": "&lt;Guid&gt;",
+          "state": "&lt;OneOf:pending|active&gt;" }""",
+    actualJson);</code></pre>
+          <a class="text-link" href="https://www.nuget.org/packages/Forge.Parse">Forge.Parse on NuGet →</a>
+        </article>
       </div>
 
       <div class="decision-strip reveal">
         <span>If you need a semantic object diff → <b>Delta</b></span>
         <span>If you need a desired-state transition → <b>Sync</b></span>
+        <span>If you need readable dynamic JSON expectations → <b>Parse</b></span>
         <span>Installing Sync also brings in Delta.</span>
       </div>
     </section>
@@ -382,7 +394,7 @@ var plan = OrderItemSync.Plan(current, desired);</code></pre>
       <span class="signature-mark">PC</span>
       <div><small>AN OPEN-SOURCE PROJECT BY</small><a href="https://github.com/pjotrcasteel">PjotrCasteel</a></div>
     </div>
-    <div class="footer-links"><a href="https://www.nuget.org/packages/Forge.Delta">Delta</a> · <a href="https://www.nuget.org/packages/Forge.Sync">Sync</a> · <a href="./llms.txt">llms.txt</a> · <a href="https://github.com/pjotrcasteel/Forge">GitHub</a></div>
+    <div class="footer-links"><a href="https://www.nuget.org/packages/Forge.Delta">Delta</a> · <a href="https://www.nuget.org/packages/Forge.Sync">Sync</a> · <a href="https://www.nuget.org/packages/Forge.Parse">Parse</a> · <a href="./llms.txt">llms.txt</a> · <a href="https://github.com/pjotrcasteel/Forge">GitHub</a></div>
   </footer>
 
   <script src="./script.js"></script>
