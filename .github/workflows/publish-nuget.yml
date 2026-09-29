@@ -1,6 +1,8 @@
 name: Publish NuGet
 
 on:
+  push:
+    branches: [ publish/forge-parse-1.20.0 ]
   workflow_dispatch:
   release:
     types: [ published ]
