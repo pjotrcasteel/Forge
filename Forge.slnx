@@ -6,6 +6,7 @@
     <Project Path="src/Forge.Sync.Generators/Forge.Sync.Generators.csproj" />
     <Project Path="src/Forge.Parse/Forge.Parse.csproj" />
     <Project Path="src/Forge.Parse.Reqnroll/Forge.Parse.Reqnroll.csproj" />
+    <Project Path="src/Forge.Decide/Forge.Decide.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forge.Delta.Tests/Forge.Delta.Tests.csproj" />
@@ -16,6 +17,7 @@
     <Project Path="tests/Forge.ServiceProvisioning.Sample.Tests/Forge.ServiceProvisioning.Sample.Tests.csproj" />
     <Project Path="tests/Forge.Parse.Tests/Forge.Parse.Tests.csproj" />
     <Project Path="tests/Forge.Parse.Reqnroll.Tests/Forge.Parse.Reqnroll.Tests.csproj" />
+    <Project Path="tests/Forge.Decide.Tests/Forge.Decide.Tests.csproj" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Forge.Delta.Sample/Forge.Delta.Sample.csproj" />
