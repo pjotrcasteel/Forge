@@ -65,6 +65,28 @@ public sealed class StrategySpace<TSpace, TContext, TPlan>
     public async ValueTask<StrategyDecision<TSpace, TPlan>> DecideAsync(TContext context, CancellationToken cancellationToken)
     {
         var comparison = await CompareAsync(context, cancellationToken).ConfigureAwait(false);
-        return await comparison.DecideAsync(context, _selectionPolicy, cancellationToken).ConfigureAwait(false);
+        return await DecideAsync(comparison, context, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Applies this space's configured selection policy to an already-evaluated comparison.
+    /// </summary>
+    /// <param name="comparison">Candidate evidence previously evaluated for this strategy space.</param>
+    /// <param name="context">Decision context supplied to the configured selection policy.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A decision derived without re-running strategies.</returns>
+    public ValueTask<StrategyDecision<TSpace, TPlan>> DecideAsync(
+        StrategyComparison<TSpace, TPlan> comparison,
+        TContext context,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(comparison);
+
+        if (comparison.SpaceId != Id)
+        {
+            throw new ArgumentException($"Comparison for strategy space '{comparison.SpaceId}' cannot be decided by strategy space '{Id}'.", nameof(comparison));
+        }
+
+        return comparison.DecideAsync(context, _selectionPolicy, cancellationToken);
     }
 }

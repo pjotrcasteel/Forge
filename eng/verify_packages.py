@@ -234,7 +234,27 @@ def main() -> None:
     if dependency_map(decide_nuspec):
         fail("Forge.Decide must have no package dependencies")
 
-    for package_id in ["Forge.Delta", "Forge.Sync", "Forge.Parse", "Forge.Parse.Reqnroll", "Forge.Decide"]:
+    decide_testing_nuspec = verify_runtime_package(
+        package_file(directory, "Forge.Decide.Testing", version, "nupkg"),
+        "Forge.Decide.Testing",
+        version,
+        "Forge.Decide.Testing",
+        "# Forge.Decide.Testing",
+    )
+    decide_testing_dependencies = dependency_map(decide_testing_nuspec)
+    if set(decide_testing_dependencies) != {"Forge.Decide"}:
+        fail("Forge.Decide.Testing must depend only on Forge.Decide")
+    require_matching_dependency(decide_testing_dependencies, "Forge.Decide", version)
+
+    package_ids = [
+        "Forge.Delta",
+        "Forge.Sync",
+        "Forge.Parse",
+        "Forge.Parse.Reqnroll",
+        "Forge.Decide",
+        "Forge.Decide.Testing",
+    ]
+    for package_id in package_ids:
         verify_symbol_package(package_file(directory, package_id, version, "snupkg"), package_id)
 
     print("Forge package metadata, layout, dependency, README, XML-doc, and symbol validation passed.")
