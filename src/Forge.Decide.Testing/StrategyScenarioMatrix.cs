@@ -1,3 +1,5 @@
+using Forge.Decide;
+
 namespace Forge.Decide.Testing;
 
 /// <summary>
