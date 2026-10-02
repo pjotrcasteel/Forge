@@ -26,6 +26,9 @@
     <Project Path="samples/Forge.Application.Sample/Forge.Application.Sample.csproj" />
     <Project Path="samples/Forge.ServiceProvisioning.Sample/Forge.ServiceProvisioning.Sample.csproj" />
   </Folder>
+  <Folder Name="/package-consumers/">
+    <Project Path="tests/Forge.Decide.PackageConsumer/Forge.Decide.PackageConsumer.csproj" />
+  </Folder>
   <Folder Name="/benchmarks/">
     <Project Path="benchmarks/Forge.Benchmarks/Forge.Benchmarks.csproj" />
   </Folder>

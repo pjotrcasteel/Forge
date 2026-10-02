@@ -57,12 +57,7 @@ def dependency_map(nuspec: ET.Element) -> dict[str, str]:
     return result
 
 
-def verify_metadata(
-    nuspec: ET.Element,
-    package_id: str,
-    version: str,
-    require_source_generator_tag: bool,
-) -> None:
+def verify_metadata(nuspec: ET.Element, package_id: str, version: str, require_source_generator_tag: bool) -> None:
     data = metadata(nuspec)
 
     if child_text(data, "id") != package_id:
@@ -101,14 +96,7 @@ def verify_metadata(
         fail(f"{package_id} package tags must include source-generator")
 
 
-def verify_generated_package(
-    path: Path,
-    package_id: str,
-    version: str,
-    runtime_assembly: str,
-    generator_assembly: str,
-    readme_heading: str,
-) -> ET.Element:
+def verify_generated_package(path: Path, package_id: str, version: str, runtime_assembly: str, generator_assembly: str, readme_heading: str) -> ET.Element:
     with zipfile.ZipFile(path) as archive:
         names = set(archive.namelist())
         required = {
@@ -124,10 +112,7 @@ def verify_generated_package(
         if missing:
             fail(f"{path.name} is missing: {', '.join(sorted(missing))}")
 
-        if any(
-            name.startswith("lib/") and Path(name).name == f"{generator_assembly}.dll"
-            for name in names
-        ):
+        if any(name.startswith("lib/") and Path(name).name == f"{generator_assembly}.dll" for name in names):
             fail(f"{path.name} exposes its generator as a runtime library")
         if any("Microsoft.CodeAnalysis" in name and name.endswith(".dll") for name in names):
             fail(f"{path.name} must not embed Roslyn assemblies")
@@ -143,13 +128,7 @@ def verify_generated_package(
         return nuspec
 
 
-def verify_runtime_package(
-    path: Path,
-    package_id: str,
-    version: str,
-    runtime_assembly: str,
-    readme_heading: str,
-) -> ET.Element:
+def verify_runtime_package(path: Path, package_id: str, version: str, runtime_assembly: str, readme_heading: str) -> ET.Element:
     with zipfile.ZipFile(path) as archive:
         names = set(archive.namelist())
         required = {
@@ -187,11 +166,7 @@ def verify_symbol_package(path: Path, runtime_assembly: str) -> None:
         read_nuspec(archive, path.name)
 
 
-def require_matching_dependency(
-    dependencies: dict[str, str],
-    package_id: str,
-    version: str,
-) -> None:
+def require_matching_dependency(dependencies: dict[str, str], package_id: str, version: str) -> None:
     if package_id not in dependencies or version not in dependencies[package_id]:
         fail(f"Expected dependency on {package_id} {version}, found: {dependencies}")
 
@@ -249,11 +224,18 @@ def main() -> None:
     if "Reqnroll" not in reqnroll_dependencies:
         fail("Forge.Parse.Reqnroll must depend on Reqnroll")
 
-    for package_id in ["Forge.Delta", "Forge.Sync", "Forge.Parse", "Forge.Parse.Reqnroll"]:
-        verify_symbol_package(
-            package_file(directory, package_id, version, "snupkg"),
-            package_id,
-        )
+    decide_nuspec = verify_runtime_package(
+        package_file(directory, "Forge.Decide", version, "nupkg"),
+        "Forge.Decide",
+        version,
+        "Forge.Decide",
+        "# Forge.Decide",
+    )
+    if dependency_map(decide_nuspec):
+        fail("Forge.Decide must have no package dependencies")
+
+    for package_id in ["Forge.Delta", "Forge.Sync", "Forge.Parse", "Forge.Parse.Reqnroll", "Forge.Decide"]:
+        verify_symbol_package(package_file(directory, package_id, version, "snupkg"), package_id)
 
     print("Forge package metadata, layout, dependency, README, XML-doc, and symbol validation passed.")
 
