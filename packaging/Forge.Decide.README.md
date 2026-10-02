@@ -132,9 +132,19 @@ var shadow = await comparison.DecideAsync(
     cancellationToken);
 ```
 
-Both decisions use the exact same immutable candidate evidence. Strategies are not re-run between production and shadow selection.
+Or keep the relationship explicit:
 
-This also supports dry runs, diagnostics, tests, UIs and policy experiments without execution semantics in the core.
+```csharp
+var shadowResult = await comparison.DecideWithShadowAsync(
+    context,
+    productionPolicy,
+    nextPolicy,
+    cancellationToken);
+
+shadowResult.SelectionChanged;
+```
+
+Both decisions use the exact same immutable candidate evidence. Strategies are not re-run between production and shadow selection.
 
 ## Explain decisions
 
@@ -161,22 +171,30 @@ var digest = StrategyDecisionDigest.ComputeSha256Hex(
 
 The digest covers the strategy space, selected strategy, candidate order, applicability, explanations, and every applicable proposal through the supplied canonical representation. Forge.Decide adds no timestamp, random identifier or hidden state.
 
-## Decision evidence
+## Replay and regression diffing
 
-A decision contains:
+Compare two evaluations from different contexts, strategy versions or deployments without teaching Forge what the plans mean:
 
-```text
-SpaceId
-SelectedStrategyId
-Plan
-Candidates
-  StrategyId
-  Applicable / Rejected
-  Reason
-  Proposed plan when applicable
+```csharp
+var diff = StrategyComparisonDiff.Between(
+    previousComparison,
+    currentComparison,
+    CanonicalizePlan);
 ```
 
-Applications that need audit receipts can wrap the decision and digest with their own identity, timestamp, correlation, persistence, or transport metadata.
+Each candidate reports `Added`, `Removed`, `ApplicabilityChanged`, `ReasonChanged`, and/or `PlanChanged`. Stable strategies remain present with `None`, which makes the diff useful for diagnostics as well as assertions.
+
+Completed decisions can be compared too:
+
+```csharp
+var decisionDiff = StrategyDecisionDiff.Between(
+    previousDecision,
+    currentDecision,
+    CanonicalizePlan);
+
+decisionDiff.SelectionChanged;
+decisionDiff.Evidence;
+```
 
 ## Boundary
 

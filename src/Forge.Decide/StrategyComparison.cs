@@ -10,9 +10,9 @@ public sealed record StrategyComparison<TSpace, TPlan>
     internal StrategyComparison(StrategySpaceId spaceId, IReadOnlyList<StrategyCandidate<TPlan>> candidates)
     {
         SpaceId = spaceId;
-        Candidates = candidates;
-        ApplicableCandidates = candidates.OfType<ApplicableStrategyCandidate<TPlan>>().ToArray();
-        RejectedCandidates = candidates.OfType<RejectedStrategyCandidate<TPlan>>().ToArray();
+        Candidates = Array.AsReadOnly(candidates.ToArray());
+        ApplicableCandidates = Array.AsReadOnly(Candidates.OfType<ApplicableStrategyCandidate<TPlan>>().ToArray());
+        RejectedCandidates = Array.AsReadOnly(Candidates.OfType<RejectedStrategyCandidate<TPlan>>().ToArray());
     }
 
     /// <summary>
@@ -64,5 +64,29 @@ public sealed record StrategyComparison<TSpace, TPlan>
         }
 
         return new StrategyDecision<TSpace, TPlan>(SpaceId, selected, Candidates);
+    }
+
+    /// <summary>
+    /// Applies a production and shadow policy to the same evaluated candidates.
+    /// </summary>
+    /// <typeparam name="TContext">Decision context type.</typeparam>
+    /// <param name="context">Decision context supplied to both policies.</param>
+    /// <param name="productionPolicy">Policy whose decision represents current behavior.</param>
+    /// <param name="shadowPolicy">Policy evaluated for comparison only.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Production and shadow decisions derived from the same candidate evidence.</returns>
+    public async ValueTask<StrategyShadowDecision<TSpace, TPlan>> DecideWithShadowAsync<TContext>(
+        TContext context,
+        IStrategySelectionPolicy<TContext, TPlan> productionPolicy,
+        IStrategySelectionPolicy<TContext, TPlan> shadowPolicy,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(productionPolicy);
+        ArgumentNullException.ThrowIfNull(shadowPolicy);
+
+        var production = await DecideAsync(context, productionPolicy, cancellationToken).ConfigureAwait(false);
+        var shadow = await DecideAsync(context, shadowPolicy, cancellationToken).ConfigureAwait(false);
+
+        return new StrategyShadowDecision<TSpace, TPlan>(production, shadow);
     }
 }
