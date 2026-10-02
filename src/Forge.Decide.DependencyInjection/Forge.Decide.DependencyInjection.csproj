@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Forge.Decide.DependencyInjection</PackageId>
+    <Title>Forge.Decide.DependencyInjection</Title>
+    <Version>$(ForgeVersion)</Version>
+    <Description>Microsoft.Extensions.DependencyInjection integration for typed Forge.Decide strategy spaces.</Description>
+    <PackageTags>forge;dotnet;strategy;decision;dependency-injection;di;planning</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Adds explicit DI registration for typed Forge.Decide strategy spaces without assembly scanning or service-location inside strategies.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Decide/Forge.Decide.csproj" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../packaging/Forge.Decide.DependencyInjection.README.md" Pack="true" PackagePath="README.md" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

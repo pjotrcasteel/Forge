@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Forge.Decide.Testing</PackageId>
+    <Title>Forge.Decide.Testing</Title>
+    <Version>$(ForgeVersion)</Version>
+    <Description>Framework-neutral scenario matrix exploration for Forge.Decide strategy spaces.</Description>
+    <PackageTags>forge;dotnet;strategy;decision;testing;scenarios;matrix;deterministic</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Scenario-matrix exploration for detecting uncovered and ambiguous Forge.Decide contexts without coupling to a test framework.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Decide/Forge.Decide.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../packaging/Forge.Decide.Testing.README.md" Pack="true" PackagePath="README.md" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Pjotr Casteel">
+  <title>Forge.Decide — bounded, explainable strategy decisions for .NET</title>
+  <meta name="description" content="Explore Forge.Decide: typed strategy spaces, side-effect-free proposals, deterministic selection, shadow policies, decision evidence, scenario testing, DI and OpenTelemetry for .NET 10.">
+  <meta name="theme-color" content="#0b0c0f">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Forge.Decide — choose a valid plan, and explain why">
+  <meta property="og:description" content="A visual guide to bounded strategy spaces, frozen proposals, deterministic decisions, shadow policies and durable decision evidence in Forge.Decide.">
+  <meta property="og:url" content="https://pjotrcasteel.github.io/Forge/decide.html">
+  <meta property="og:image" content="https://pjotrcasteel.github.io/Forge/social-preview.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://pjotrcasteel.github.io/Forge/decide.html">
+  <link rel="icon" href="./logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./forge-icon.png">
+  <link rel="manifest" href="./site.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./story.css">
+  <link rel="stylesheet" href="./decide.css">
+</head>
+<body class="story-body decide-body">
+  <div class="grid-sky" aria-hidden="true"></div>
+  <div class="heat heat-a" aria-hidden="true"></div>
+  <div class="heat heat-b" aria-hidden="true"></div>
+
+  <header class="nav-shell">
+    <nav class="nav container" aria-label="Forge.Decide navigation">
+      <a class="brand" href="./" aria-label="Forge home">
+        <img src="./logo.svg" alt="" width="30" height="30"><span>Forge</span>
+      </a>
+      <div class="nav-links story-nav-links">
+        <a href="#space">Space</a>
+        <a href="#propose">Propose</a>
+        <a href="#decide">Decide</a>
+        <a href="#shadow">Shadow</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#packages">Packages</a>
+      </div>
+      <a class="button button-small" href="https://github.com/pjotrcasteel/Forge/tree/feature/forge-decide/samples/Forge.Decide.Sample">Runnable sample</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="story-hero container decide-hero">
+      <div class="story-hero-copy reveal">
+        <div class="eyebrow"><span class="spark"></span> Forge.Decide · .NET 10 · dependency-free core</div>
+        <h1>Several approaches are valid.<br><span>Which one becomes the plan?</span></h1>
+        <p class="hero-lead">
+          Forge.Decide gives an application a hard candidate boundary, side-effect-free strategy proposals,
+          deterministic selection and durable evidence for <em>why</em> one course of action was chosen.
+        </p>
+        <div class="hero-actions">
+          <a class="button" href="#space">See the decision flow</a>
+          <a class="button button-ghost" href="https://github.com/pjotrcasteel/Forge/tree/feature/forge-decide/samples/Forge.Decide.Sample">Run the sample</a>
+        </div>
+        <button class="install decide-install" type="button" data-copy="dotnet add package Forge.Decide --version 1.20.0">
+          <code>dotnet add package Forge.Decide --version 1.20.0</code><span class="copy-label">Copy</span>
+        </button>
+      </div>
+
+      <aside class="story-promise decision-promise reveal delay-1" aria-label="Forge.Decide summary">
+        <span class="mono-label">THE DECISION PIPELINE</span>
+        <ol>
+          <li><b>Bound</b><span>which strategies may compete</span></li>
+          <li><b>Propose</b><span>plans without side effects</span></li>
+          <li><b>Freeze</b><span>one immutable evidence set</span></li>
+          <li><b>Select</b><span>through an explicit policy</span></li>
+          <li><b>Explain</b><span>the choice and alternatives</span></li>
+        </ol>
+        <div class="story-boundary">Forge decides. Your application executes.</div>
+      </aside>
+    </section>
+
+    <div class="story-progress-shell" aria-hidden="true">
+      <div class="container story-progress decide-progress">
+        <span>01 SPACE</span><i></i><span>02 PROPOSE</span><i></i><span>03 DECIDE</span><i></i><span>04 SHADOW</span><i></i><span>05 EVIDENCE</span>
+      </div>
+    </div>
+
+    <section id="space" class="story-section container">
+      <div class="story-chapter reveal">
+        <span class="chapter-number">01</span>
+        <div>
+          <div class="eyebrow">Hard candidate boundary</div>
+          <h2>A strategy should not decide whether it belongs to the problem.</h2>
+          <p>
+            The consumer defines a typed <code>StrategySpace</code>. A strategy outside that space is not
+            “rejected” at runtime—it is never asked to compete. The package does not know what your spaces mean.
+          </p>
+        </div>
+      </div>
+
+      <div class="space-board reveal">
+        <article class="global-strategies">
+          <div class="board-head"><span>AVAILABLE STRATEGIES</span><small>application-wide</small></div>
+          <div class="strategy-chip admitted"><b>fast-lane</b><small>low latency</small></div>
+          <div class="strategy-chip admitted"><b>balanced</b><small>balanced cost + latency</small></div>
+          <div class="strategy-chip excluded"><b>economy</b><small>batch-only</small></div>
+        </article>
+        <div class="boundary-gate"><span>explicit membership</span><b>→</b></div>
+        <article class="typed-space-card">
+          <div class="board-head"><span>INTERACTIVE SPACE</span><small>typed marker</small></div>
+          <div class="space-slot"><span>✓</span><b>fast-lane</b><small>may compete</small></div>
+          <div class="space-slot"><span>✓</span><b>balanced</b><small>may compete</small></div>
+          <div class="space-absence"><span>economy</span><b>never evaluated</b></div>
+        </article>
+      </div>
+
+      <div class="code-callout reveal">
+        <div>
+          <span class="mono-label">CONSUMER-OWNED BOUNDARY</span>
+          <h3>The type marker says “which problem space”; registration says “who may compete”.</h3>
+        </div>
+        <pre><code>var interactive = StrategySpace&lt;InteractiveSpace&gt;
+    .Define&lt;WorkloadContext, WorkloadPlan&gt;("interactive")
+    .Add(new FastLaneStrategy())
+    .Add(new BalancedStrategy())
+    .Build();</code></pre>
+      </div>
+    </section>
+
+    <section id="propose" class="story-section story-section-alt">
+      <div class="container">
+        <div class="story-chapter reveal">
+          <span class="chapter-number">02</span>
+          <div>
+            <div class="eyebrow">Strategies propose; they do not execute</div>
+            <h2>Only admitted strategies get to inspect the context.</h2>
+            <p>
+              Each strategy returns an applicable plan with an explanation, or an explicit rejection.
+              Proposal evaluation stays side-effect-free so all alternatives can be inspected before anything irreversible happens.
+            </p>
+          </div>
+        </div>
+
+        <div class="proposal-flow reveal">
+          <article class="context-card">
+            <span>CONTEXT</span>
+            <b>interactive request</b>
+            <small>latency target · 85 ms</small>
+            <small>cost ceiling · 45</small>
+          </article>
+          <i>→</i>
+          <div class="proposal-stack">
+            <article class="proposal-card applicable">
+              <div><span>FAST-LANE</span><b>Applicable</b></div>
+              <p>Plan: reserve premium capacity → dispatch</p>
+              <small>Reason: latency target requires the fast path.</small>
+            </article>
+            <article class="proposal-card applicable">
+              <div><span>BALANCED</span><b>Applicable</b></div>
+              <p>Plan: reserve shared capacity → dispatch</p>
+              <small>Reason: target remains inside balanced capability.</small>
+            </article>
+          </div>
+        </div>
+
+        <div class="boundary-callout reveal">
+          <div>
+            <span class="mono-label">NOT A CANHANDLE CONVENTION</span>
+            <h3>Space membership and applicability are different questions.</h3>
+            <p>Membership is architectural. Applicability is runtime domain logic inside an admitted strategy.</p>
+          </div>
+          <div class="boundary-flow">
+            <b>space membership</b><i>→</i><b>proposal</b><i>→</i><b>applicability</b>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="decide" class="story-section container">
+      <div class="story-chapter reveal">
+        <span class="chapter-number">03</span>
+        <div>
+          <div class="eyebrow">Freeze first. Select second.</div>
+          <h2>The decision operates on evidence, not on registration order.</h2>
+          <p>
+            <code>CompareAsync</code> evaluates every admitted strategy once and freezes the resulting candidates.
+            A selection policy then resolves that exact evidence set. The default is intentionally strict: exactly one applicable proposal.
+          </p>
+        </div>
+      </div>
+
+      <div class="decision-board reveal">
+        <div class="frozen-comparison">
+          <span class="mono-label">FROZEN COMPARISON</span>
+          <div class="comparison-row"><b>fast-lane</b><span>applicable</span><small>score 92</small></div>
+          <div class="comparison-row"><b>balanced</b><span>applicable</span><small>score 78</small></div>
+          <div class="freeze-seal">evaluated once</div>
+        </div>
+        <div class="policy-gate">
+          <span>selection policy</span>
+          <b>HighestBy(score)</b>
+          <i>→</i>
+        </div>
+        <div class="selected-plan">
+          <span>SELECTED</span>
+          <strong>fast-lane</strong>
+          <p>premium capacity → dispatch</p>
+          <small>alternatives remain visible in evidence</small>
+        </div>
+      </div>
+
+      <div class="safety-grid reveal">
+        <article><span>0 applicable</span><strong>NoApplicableStrategy</strong><p>The gap is explicit.</p></article>
+        <article><span>1 applicable</span><strong>Select</strong><p>The safe default succeeds.</p></article>
+        <article><span>2+ applicable</span><strong>Ambiguous</strong><p>No silent first-registration win.</p></article>
+        <article><span>intentional competition</span><strong>HighestBy / LowestBy</strong><p>Ties stay ambiguous.</p></article>
+      </div>
+    </section>
+
+    <section id="shadow" class="story-section story-section-alt">
+      <div class="container">
+        <div class="story-chapter reveal">
+          <span class="chapter-number">04</span>
+          <div>
+            <div class="eyebrow">Safe policy evolution</div>
+            <h2>Run the next policy against the same world—not a second evaluation.</h2>
+            <p>
+              Because proposals are frozen before selection, production and shadow policies can select from identical evidence.
+              Strategies are not re-run, and the shadow decision never executes a plan.
+            </p>
+          </div>
+        </div>
+
+        <div class="shadow-board reveal">
+          <div class="shared-evidence">
+            <span>ONE COMPARISON</span>
+            <b>fast-lane · balanced</b>
+            <small>same plans · same reasons · same context</small>
+          </div>
+          <div class="shadow-split">
+            <article class="production-policy">
+              <span>PRODUCTION POLICY</span>
+              <b>HighestBy(reliability)</b>
+              <div class="policy-result"><small>selected</small><strong>fast-lane</strong></div>
+            </article>
+            <article class="next-policy">
+              <span>SHADOW POLICY</span>
+              <b>LowestBy(cost)</b>
+              <div class="policy-result changed"><small>would select</small><strong>balanced</strong></div>
+            </article>
+          </div>
+          <div class="shadow-verdict"><span>SELECTION CHANGED</span><b>production stays authoritative</b></div>
+        </div>
+
+        <div class="code-callout reveal">
+          <div>
+            <span class="mono-label">ONE EVALUATION · TWO POLICIES</span>
+            <h3>Shadowing is selection comparison, not duplicate execution.</h3>
+          </div>
+          <pre><code>var comparison = await space.CompareAsync(context, cancellationToken);
+
+var shadow = await comparison.DecideWithShadowAsync(
+    context,
+    productionPolicy,
+    nextPolicy,
+    cancellationToken);</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="evidence" class="story-section container">
+      <div class="story-chapter reveal">
+        <span class="chapter-number">05</span>
+        <div>
+          <div class="eyebrow">Decision evidence</div>
+          <h2>Answer “why did we choose this?” after the request is gone.</h2>
+          <p>
+            A completed decision retains candidate evidence. Forge can create a plan-free explanation, a deterministic SHA-256 receipt,
+            and a diff against a later evaluation when context or strategy behavior changes.
+          </p>
+        </div>
+      </div>
+
+      <div class="evidence-grid reveal">
+        <article class="evidence-card explain-card">
+          <span>EXPLAIN</span>
+          <strong>Selected · fast-lane</strong>
+          <div><b>fast-lane</b><small>selected · latency requirement</small></div>
+          <div><b>balanced</b><small>applicable · lower score</small></div>
+          <p>Diagnostic evidence without serializing the plan.</p>
+        </article>
+        <article class="evidence-card digest-card">
+          <span>RECEIPT</span>
+          <strong>SHA-256</strong>
+          <code>6F3C…A91D</code>
+          <p>Your application supplies deterministic plan canonicalization; Forge adds no clock or random ID.</p>
+        </article>
+        <article class="evidence-card diff-card">
+          <span>DIFF</span>
+          <strong>What changed?</strong>
+          <div><b>selection</b><small>fast-lane → balanced</small></div>
+          <div><b>reason</b><small>latency threshold changed</small></div>
+          <div><b>plan</b><small>proposal changed</small></div>
+        </article>
+      </div>
+
+      <div class="testing-panel reveal">
+        <div>
+          <span class="mono-label">FORGE.DECIDE.TESTING</span>
+          <h3>Explore the decision surface before production finds the holes.</h3>
+          <p>Feed hand-written, generated or combinatorial contexts into a scenario matrix and surface uncovered or ambiguous decisions.</p>
+        </div>
+        <div class="matrix-mini">
+          <div class="matrix-row good"><b>small-interactive</b><span>Selected</span><small>fast-lane</small></div>
+          <div class="matrix-row warn"><b>boundary-case</b><span>Ambiguous</span><small>2 candidates</small></div>
+          <div class="matrix-row bad"><b>unsupported</b><span>No applicable</span><small>0 candidates</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="packages" class="story-section story-section-alt package-split-section">
+      <div class="container">
+        <div class="story-chapter reveal">
+          <span class="chapter-number">+</span>
+          <div>
+            <div class="eyebrow">Focused core · optional edges</div>
+            <h2>Use only the Decide capability your application needs.</h2>
+            <p>The core remains infrastructure-independent. Testing, DI and telemetry are separate opt-in packages.</p>
+          </div>
+        </div>
+
+        <div class="decide-package-grid reveal">
+          <article class="decide-package core-package">
+            <span>CORE</span><h3>Forge.Decide</h3>
+            <p>Spaces, proposals, comparisons, policies, decisions, explanations, shadow selection, receipts and diffs.</p>
+            <code>no package dependencies</code>
+          </article>
+          <article class="decide-package">
+            <span>TESTING</span><h3>Forge.Decide.Testing</h3>
+            <p>Framework-neutral scenario matrices for coverage gaps and ambiguity.</p>
+            <code>→ Forge.Decide</code>
+          </article>
+          <article class="decide-package">
+            <span>ADAPTER</span><h3>Forge.Decide.DependencyInjection</h3>
+            <p>Explicit typed-space construction through Microsoft.Extensions.DependencyInjection. No scanning.</p>
+            <code>→ Forge.Decide</code>
+          </article>
+          <article class="decide-package">
+            <span>OBSERVABILITY</span><h3>Forge.Decide.OpenTelemetry</h3>
+            <p>Standard ActivitySource spans without owning providers, exporters or domain payloads.</p>
+            <code>→ Forge.Decide</code>
+          </article>
+        </div>
+
+        <div class="execution-boundary reveal">
+          <div><span>FORGE.DECIDE</span><b>compare · select · explain · diff</b></div>
+          <i>│ plan boundary │</i>
+          <div><span>YOUR APPLICATION</span><b>persist · approve · transmit · execute</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="story-proof container">
+      <div class="proof-grid reveal">
+        <div>
+          <span class="mono-label">RUN THE WHOLE STORY</span>
+          <h3>The functionality page is backed by a neutral executable sample.</h3>
+          <p>
+            <code>Forge.Decide.Sample</code> demonstrates bounded candidates, frozen comparison, shadow policies,
+            explanation, digest, changed-context diff and a second space with different membership.
+          </p>
+        </div>
+        <a class="proof-link" href="https://github.com/pjotrcasteel/Forge/tree/feature/forge-decide/samples/Forge.Decide.Sample">
+          <span>RUNNABLE SAMPLE</span><b>samples/Forge.Decide.Sample</b><i>↗</i>
+        </a>
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="story-conclusion decide-conclusion reveal">
+        <div>
+          <span class="eyebrow">The Forge.Decide boundary</span>
+          <h2>Choose deliberately.<br>Keep execution yours.</h2>
+          <p>
+            Forge.Decide owns the mechanics of bounded, deterministic and explainable choice.
+            Your application owns the domain meaning, policy, authority and side effects.
+          </p>
+        </div>
+        <div class="story-conclusion-actions">
+          <a class="button" href="https://www.nuget.org/packages/Forge.Decide">View Forge.Decide on NuGet</a>
+          <a class="button button-ghost" href="./">Back to the Forge family</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer container">
+    <div class="footer-brand">
+      <div class="brand"><img src="./logo.svg" alt="" width="24" height="24"><span>Forge.Decide</span></div>
+      <p>Bounded, deterministic strategy decisions for .NET 10.</p>
+    </div>
+    <div class="signature">
+      <span class="signature-mark">PC</span>
+      <div><small>AN OPEN-SOURCE PROJECT BY</small><a href="https://github.com/pjotrcasteel">PjotrCasteel</a></div>
+    </div>
+    <div class="footer-links"><a href="./">Forge</a> · <a href="https://www.nuget.org/packages/Forge.Decide">NuGet</a> · <a href="https://github.com/pjotrcasteel/Forge">GitHub</a></div>
+  </footer>
+
+  <script src="./decide.js"></script>
+</body>
+</html>

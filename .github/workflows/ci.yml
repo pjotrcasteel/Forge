@@ -31,6 +31,12 @@ jobs:
       - name: Test
         run: dotnet test Forge.slnx -c Release --no-build
 
+      - name: Validate website and documentation
+        run: python eng/verify_docs.py
+
+      - name: Run Forge.Decide sample
+        run: dotnet run --project samples/Forge.Decide.Sample/Forge.Decide.Sample.csproj -c Release --no-build
+
       - name: Publish AOT smoke sample
         run: dotnet publish samples/Forge.Aot.Sample/Forge.Aot.Sample.csproj -c Release -r linux-x64 --no-restore
 
@@ -40,6 +46,10 @@ jobs:
           dotnet pack src/Forge.Sync/Forge.Sync.csproj -c Release --no-build -o artifacts/packages
           dotnet pack src/Forge.Parse/Forge.Parse.csproj -c Release --no-build -o artifacts/packages
           dotnet pack src/Forge.Parse.Reqnroll/Forge.Parse.Reqnroll.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Decide/Forge.Decide.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Decide.Testing/Forge.Decide.Testing.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Decide.DependencyInjection/Forge.Decide.DependencyInjection.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Decide.OpenTelemetry/Forge.Decide.OpenTelemetry.csproj -c Release --no-build -o artifacts/packages
 
       - name: Validate package layout and metadata
         run: python eng/verify_packages.py artifacts/packages "$(sed -n 's:.*<ForgeVersion>\(.*\)</ForgeVersion>.*:\1:p' Directory.Build.props)"
@@ -47,38 +57,44 @@ jobs:
       - name: Validate Forge.Delta packed consumer
         run: |
           rm -rf artifacts/package-consumers/delta
-          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/delta" \
-            dotnet restore tests/Forge.Delta.PackageConsumer/Forge.Delta.PackageConsumer.csproj \
-              --source artifacts/packages \
-              --force-evaluate
-          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/delta" \
-            dotnet run --project tests/Forge.Delta.PackageConsumer/Forge.Delta.PackageConsumer.csproj \
-              -c Release \
-              --no-restore
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/delta" dotnet restore tests/Forge.Delta.PackageConsumer/Forge.Delta.PackageConsumer.csproj --source artifacts/packages --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/delta" dotnet run --project tests/Forge.Delta.PackageConsumer/Forge.Delta.PackageConsumer.csproj -c Release --no-restore
 
       - name: Validate Forge.Sync packed consumer and transitive Delta
         run: |
           rm -rf artifacts/package-consumers/sync
-          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" \
-            dotnet restore tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj \
-              --source artifacts/packages \
-              --force-evaluate
-          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" \
-            dotnet run --project tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj \
-              -c Release \
-              --no-restore
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" dotnet restore tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj --source artifacts/packages --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/sync" dotnet run --project tests/Forge.PackageConsumer/Forge.PackageConsumer.csproj -c Release --no-restore
 
       - name: Validate Forge.Parse packed consumer
         run: |
           rm -rf artifacts/package-consumers/parse
-          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/parse" \
-            dotnet restore tests/Forge.Parse.PackageConsumer/Forge.Parse.PackageConsumer.csproj \
-              --source artifacts/packages \
-              --force-evaluate
-          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/parse" \
-            dotnet run --project tests/Forge.Parse.PackageConsumer/Forge.Parse.PackageConsumer.csproj \
-              -c Release \
-              --no-restore
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/parse" dotnet restore tests/Forge.Parse.PackageConsumer/Forge.Parse.PackageConsumer.csproj --source artifacts/packages --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/parse" dotnet run --project tests/Forge.Parse.PackageConsumer/Forge.Parse.PackageConsumer.csproj -c Release --no-restore
+
+      - name: Validate Forge.Decide packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/decide
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide" dotnet restore tests/Forge.Decide.PackageConsumer/Forge.Decide.PackageConsumer.csproj --source artifacts/packages --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide" dotnet run --project tests/Forge.Decide.PackageConsumer/Forge.Decide.PackageConsumer.csproj -c Release --no-restore
+
+      - name: Validate Forge.Decide.Testing packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/decide-testing
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-testing" dotnet restore tests/Forge.Decide.Testing.PackageConsumer/Forge.Decide.Testing.PackageConsumer.csproj --source artifacts/packages --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-testing" dotnet run --project tests/Forge.Decide.Testing.PackageConsumer/Forge.Decide.Testing.PackageConsumer.csproj -c Release --no-restore
+
+      - name: Validate Forge.Decide.DependencyInjection packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/decide-di
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-di" dotnet restore tests/Forge.Decide.DependencyInjection.PackageConsumer/Forge.Decide.DependencyInjection.PackageConsumer.csproj --source artifacts/packages --source https://api.nuget.org/v3/index.json --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-di" dotnet run --project tests/Forge.Decide.DependencyInjection.PackageConsumer/Forge.Decide.DependencyInjection.PackageConsumer.csproj -c Release --no-restore
+
+      - name: Validate Forge.Decide.OpenTelemetry packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/decide-otel
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-otel" dotnet restore tests/Forge.Decide.OpenTelemetry.PackageConsumer/Forge.Decide.OpenTelemetry.PackageConsumer.csproj --source artifacts/packages --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-otel" dotnet run --project tests/Forge.Decide.OpenTelemetry.PackageConsumer/Forge.Decide.OpenTelemetry.PackageConsumer.csproj -c Release --no-restore
 
       - name: Write package checksums
         run: |

@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Forge.Decide</PackageId>
+    <Title>Forge.Decide</Title>
+    <Version>$(ForgeVersion)</Version>
+    <Description>Typed, deterministic strategy decisions with bounded candidate spaces, explainable proposals, and application-owned plans for .NET 10.</Description>
+    <PackageTags>forge;dotnet;strategy;decision;planning;orchestration;rules;deterministic</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Typed strategy spaces, explainable proposals, deterministic selection, comparison, and application-owned plans.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../packaging/Forge.Decide.README.md" Pack="true" PackagePath="README.md" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>
