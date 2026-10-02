@@ -18,6 +18,10 @@ async function copyText(value,button,idle){
 document.querySelectorAll("[data-copy]").forEach(button=>
   button.addEventListener("click",()=>copyText(button.dataset.copy,button,"Copy")));
 
+document.querySelectorAll('a[href*="/tree/feature/forge-decide/"]').forEach(link=>{
+  link.href=link.href.replace("/tree/feature/forge-decide/","/tree/main/");
+});
+
 if("IntersectionObserver" in window){
   const progressObserver=new IntersectionObserver(entries=>{
     const visible=entries
