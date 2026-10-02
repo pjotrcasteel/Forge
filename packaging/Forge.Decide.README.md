@@ -103,25 +103,63 @@ The default selection policy is `ExactlyOne`.
 
 Forge.Decide never silently chooses a strategy because it happened to be registered first.
 
-When several proposals are intentionally valid, provide an application-owned `IStrategySelectionPolicy<TContext, TPlan>`.
+When several proposals are intentionally valid, select by an explicit application-owned value:
 
-## Compare without deciding
+```csharp
+var policy = StrategySelectionPolicies.HighestBy<RequestContext, ExecutionPlan, int>(
+    (_, candidate) => candidate.Plan.Preference);
+```
+
+`HighestBy` and `LowestBy` treat equal best values as ambiguity instead of using registration order as a hidden tiebreaker. Custom behavior remains available through `IStrategySelectionPolicy<TContext, TPlan>`.
+
+## Compare once, decide many ways
+
+Strategy proposal evaluation is separated from selection:
 
 ```csharp
 var comparison = await space.CompareAsync(
     context,
     cancellationToken);
 
-foreach (var candidate in comparison.Candidates)
-{
-    Console.WriteLine(
-        $"{candidate.StrategyId}: {candidate.IsApplicable}");
-}
+var production = await comparison.DecideAsync(
+    context,
+    productionPolicy,
+    cancellationToken);
+
+var shadow = await comparison.DecideAsync(
+    context,
+    nextPolicy,
+    cancellationToken);
 ```
 
-`CompareAsync` evaluates the admitted strategies and exposes their proposals or rejection reasons without selecting a plan.
+Both decisions use the exact same immutable candidate evidence. Strategies are not re-run between production and shadow selection.
 
-This makes dry runs, diagnostics, tests, UIs, shadow evaluation, and future replay tooling possible without adding execution semantics to the core.
+This also supports dry runs, diagnostics, tests, UIs and policy experiments without execution semantics in the core.
+
+## Explain decisions
+
+```csharp
+var explanation = decision.Explain();
+
+explanation.SpaceId;
+explanation.SelectedStrategyId;
+explanation.Candidates;
+Console.WriteLine(explanation);
+```
+
+Each candidate is reported as `Selected`, `Applicable`, or `Rejected`, together with the application-provided proposal or rejection reason. The explanation intentionally does not serialize or expose the application-owned plan.
+
+## Deterministic decision receipts
+
+Forge.Decide does not guess how an arbitrary application plan should be serialized. Supply a deterministic plan canonicalizer when a durable fingerprint is useful:
+
+```csharp
+var digest = StrategyDecisionDigest.ComputeSha256Hex(
+    decision,
+    plan => JsonSerializer.Serialize(plan, canonicalOptions));
+```
+
+The digest covers the strategy space, selected strategy, candidate order, applicability, explanations, and every applicable proposal through the supplied canonical representation. Forge.Decide adds no timestamp, random identifier or hidden state.
 
 ## Decision evidence
 
@@ -138,9 +176,7 @@ Candidates
   Proposed plan when applicable
 ```
 
-The core decision contains no generated ID or timestamp. Given the same strategy space, context behavior, proposals, and selection policy, Forge.Decide does not inject nondeterministic metadata into the result.
-
-Applications that need audit receipts can wrap the decision with their own identity, timestamp, correlation, persistence, or transport metadata.
+Applications that need audit receipts can wrap the decision and digest with their own identity, timestamp, correlation, persistence, or transport metadata.
 
 ## Boundary
 

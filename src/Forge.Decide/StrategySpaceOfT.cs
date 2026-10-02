@@ -65,20 +65,6 @@ public sealed class StrategySpace<TSpace, TContext, TPlan>
     public async ValueTask<StrategyDecision<TSpace, TPlan>> DecideAsync(TContext context, CancellationToken cancellationToken)
     {
         var comparison = await CompareAsync(context, cancellationToken).ConfigureAwait(false);
-        var applicable = comparison.Candidates.OfType<ApplicableStrategyCandidate<TPlan>>().ToArray();
-
-        if (applicable.Length == 0)
-        {
-            throw new NoApplicableStrategyException(Id);
-        }
-
-        var selected = await _selectionPolicy.SelectAsync(context, Array.AsReadOnly(applicable), cancellationToken).ConfigureAwait(false);
-
-        if (!applicable.Any(candidate => ReferenceEquals(candidate, selected)))
-        {
-            throw new InvalidStrategySelectionException(selected.StrategyId);
-        }
-
-        return new StrategyDecision<TSpace, TPlan>(Id, selected, comparison.Candidates);
+        return await comparison.DecideAsync(context, _selectionPolicy, cancellationToken).ConfigureAwait(false);
     }
 }
