@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <PackageId>Forge.Decide.OpenTelemetry</PackageId>
+    <Title>Forge.Decide.OpenTelemetry</Title>
+    <Version>$(ForgeVersion)</Version>
+    <Description>ActivitySource instrumentation for Forge.Decide strategy evaluation and selection, ready for OpenTelemetry tracing.</Description>
+    <PackageTags>forge;dotnet;strategy;decision;opentelemetry;observability;tracing;activitysource</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Adds lightweight ActivitySource instrumentation for strategy proposals, comparisons, decisions, selection policies, and shadow decisions.</PackageReleaseNotes>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Forge.Decide/Forge.Decide.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../packaging/Forge.Decide.OpenTelemetry.README.md" Pack="true" PackagePath="README.md" />
+    <None Include="../../CHANGELOG.md" Pack="true" PackagePath="CHANGELOG.md" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+</Project>
