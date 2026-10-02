@@ -246,15 +246,27 @@ def main() -> None:
         fail("Forge.Decide.Testing must depend only on Forge.Decide")
     require_matching_dependency(decide_testing_dependencies, "Forge.Decide", version)
 
-    package_ids = [
+    decide_di_nuspec = verify_runtime_package(
+        package_file(directory, "Forge.Decide.DependencyInjection", version, "nupkg"),
+        "Forge.Decide.DependencyInjection",
+        version,
+        "Forge.Decide.DependencyInjection",
+        "# Forge.Decide.DependencyInjection",
+    )
+    decide_di_dependencies = dependency_map(decide_di_nuspec)
+    if set(decide_di_dependencies) != {"Forge.Decide", "Microsoft.Extensions.DependencyInjection.Abstractions"}:
+        fail("Forge.Decide.DependencyInjection must depend only on Forge.Decide and Microsoft.Extensions.DependencyInjection.Abstractions")
+    require_matching_dependency(decide_di_dependencies, "Forge.Decide", version)
+
+    for package_id in [
         "Forge.Delta",
         "Forge.Sync",
         "Forge.Parse",
         "Forge.Parse.Reqnroll",
         "Forge.Decide",
         "Forge.Decide.Testing",
-    ]
-    for package_id in package_ids:
+        "Forge.Decide.DependencyInjection",
+    ]:
         verify_symbol_package(package_file(directory, package_id, version, "snupkg"), package_id)
 
     print("Forge package metadata, layout, dependency, README, XML-doc, and symbol validation passed.")

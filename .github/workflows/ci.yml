@@ -31,6 +31,9 @@ jobs:
       - name: Test
         run: dotnet test Forge.slnx -c Release --no-build
 
+      - name: Run Forge.Decide sample
+        run: dotnet run --project samples/Forge.Decide.Sample/Forge.Decide.Sample.csproj -c Release --no-build
+
       - name: Publish AOT smoke sample
         run: dotnet publish samples/Forge.Aot.Sample/Forge.Aot.Sample.csproj -c Release -r linux-x64 --no-restore
 
@@ -42,6 +45,7 @@ jobs:
           dotnet pack src/Forge.Parse.Reqnroll/Forge.Parse.Reqnroll.csproj -c Release --no-build -o artifacts/packages
           dotnet pack src/Forge.Decide/Forge.Decide.csproj -c Release --no-build -o artifacts/packages
           dotnet pack src/Forge.Decide.Testing/Forge.Decide.Testing.csproj -c Release --no-build -o artifacts/packages
+          dotnet pack src/Forge.Decide.DependencyInjection/Forge.Decide.DependencyInjection.csproj -c Release --no-build -o artifacts/packages
 
       - name: Validate package layout and metadata
         run: python eng/verify_packages.py artifacts/packages "$(sed -n 's:.*<ForgeVersion>\(.*\)</ForgeVersion>.*:\1:p' Directory.Build.props)"
@@ -103,6 +107,19 @@ jobs:
               --force-evaluate
           NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-testing" \
             dotnet run --project tests/Forge.Decide.Testing.PackageConsumer/Forge.Decide.Testing.PackageConsumer.csproj \
+              -c Release \
+              --no-restore
+
+      - name: Validate Forge.Decide.DependencyInjection packed consumer
+        run: |
+          rm -rf artifacts/package-consumers/decide-di
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-di" \
+            dotnet restore tests/Forge.Decide.DependencyInjection.PackageConsumer/Forge.Decide.DependencyInjection.PackageConsumer.csproj \
+              --source artifacts/packages \
+              --source https://api.nuget.org/v3/index.json \
+              --force-evaluate
+          NUGET_PACKAGES="$GITHUB_WORKSPACE/artifacts/package-consumers/decide-di" \
+            dotnet run --project tests/Forge.Decide.DependencyInjection.PackageConsumer/Forge.Decide.DependencyInjection.PackageConsumer.csproj \
               -c Release \
               --no-restore
 

@@ -8,6 +8,7 @@
     <Project Path="src/Forge.Parse.Reqnroll/Forge.Parse.Reqnroll.csproj" />
     <Project Path="src/Forge.Decide/Forge.Decide.csproj" />
     <Project Path="src/Forge.Decide.Testing/Forge.Decide.Testing.csproj" />
+    <Project Path="src/Forge.Decide.DependencyInjection/Forge.Decide.DependencyInjection.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Forge.Delta.Tests/Forge.Delta.Tests.csproj" />
@@ -20,6 +21,7 @@
     <Project Path="tests/Forge.Parse.Reqnroll.Tests/Forge.Parse.Reqnroll.Tests.csproj" />
     <Project Path="tests/Forge.Decide.Tests/Forge.Decide.Tests.csproj" />
     <Project Path="tests/Forge.Decide.Testing.Tests/Forge.Decide.Testing.Tests.csproj" />
+    <Project Path="tests/Forge.Decide.DependencyInjection.Tests/Forge.Decide.DependencyInjection.Tests.csproj" />
   </Folder>
   <Folder Name="/samples/">
     <Project Path="samples/Forge.Delta.Sample/Forge.Delta.Sample.csproj" />
