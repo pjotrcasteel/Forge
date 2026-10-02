@@ -4,6 +4,11 @@
 
 - Added Forge.Parse as the third core Forge package for structured JSON expectation matching with dynamic placeholders, capture/reuse semantics, partial/exact/unordered matching, custom matchers, and structured diagnostics.
 - Added Forge.Parse.Reqnroll as an optional thin DataTable adapter over the same matching engine.
+- Added Forge.Decide as the fourth core Forge package for typed strategy spaces, side-effect-free proposals, deterministic selection, explanations, shadow decisions, decision receipts and evidence diffing.
+- Added Forge.Decide.Testing for framework-neutral scenario matrices that surface uncovered and ambiguous decision contexts.
+- Added Forge.Decide.DependencyInjection for explicit typed-space construction through Microsoft.Extensions.DependencyInjection without assembly scanning.
+- Added Forge.Decide.OpenTelemetry for standard ActivitySource instrumentation without owning OpenTelemetry providers, exporters or application plan payloads.
+- Added a runnable Forge.Decide sample and a dedicated visual functionality page covering spaces, proposals, frozen comparisons, selection, shadowing and decision evidence.
 - Added typed composite topology transitions that combine application-defined topology plans without erasing their domain types.
 - Added consumer-extensible cross-topology invariants, composite dependency ordering, and cycle-aware validity.
 
@@ -212,7 +217,6 @@
 - Profile-generated deltas retain the strongly typed `Between`, `AreEquivalent` and property-change API.
 - Added generator and runtime tests for unannotated target types.
 
-
 ## 0.10.0
 
 - Reclassified the previous 1.0 prototype as a pre-1.0 baseline while the products mature.
@@ -238,80 +242,3 @@
 - Make detailed Delta change collections read-only instead of exposing a mutable array implementation.
 - Hide generated-code-only construction helpers from normal IntelliSense where possible.
 - Document the 1.x API contract and identity-vs-state semantics.
-
-## 0.7.5-preview.1
-
-- Centralize package versioning with `ForgeVersion`.
-- Add a package-consumer project that references the packed `Forge.Sync` package instead of project references.
-- Validate Sync source generation from the packed package.
-- Validate transitive Forge.Delta runtime/analyzer availability when only Forge.Sync is installed.
-- Add packed-consumer validation to CI and the publish workflow before NuGet push.
-- Re-check provisional `Forge.Delta` / `Forge.Sync` package IDs; exact current NuGet search returned no matches.
-
-## 0.7.0-preview.1
-
-- Dogfood Delta and Sync against service-orchestration-shaped Change/Delete/cancellation scenarios.
-- Add `ReadOnlyListSequenceComparer<T>` for explicit order-sensitive state equality.
-- Prove re-materialized equivalent list state does not have to create false Sync updates.
-- Validate full and partial delete as ordinary desired-state reconciliation.
-- Validate cancellation/compensation as application policy with Delta describing only the resulting state effect.
-- Document why dependency ordering and cancellation admission remain outside Sync.
-
-## 0.6.0-preview.1
-
-- Add warnings for ineffective Sync comparer placement.
-- Add a dedicated diagnostic for unsupported logical-key property types.
-- Add XML documentation to generated Delta and Sync public APIs.
-- Add a diagnostic reference document.
-- Add an ASP.NET Core application sample showing application-owned reconciliation execution.
-- Improve NuGet metadata while keeping the public brand marked as provisional.
-
-## 0.5.0-preview.1
-
-- Add generated `AreEquivalent` fast paths for Delta models.
-- Use `AreEquivalent` in Sync before constructing a detailed Delta.
-- Avoid allocating change lists for unchanged Delta results.
-- Replace the desired-value dictionary with a desired-key `HashSet` in generated Sync code.
-- Expand BenchmarkDotNet coverage for equivalent and mixed-change workloads.
-- Add a Native AOT smoke sample and CI publish gate.
-- Keep performance claims measurement-based; no unverified benchmark numbers are documented.
-
-## 0.4.0-preview.1
-
-- Validate desired-state reconciliation against change, full-delete and partial-delete scenarios.
-- Exclude Sync key properties from the Sync-generated Delta.
-- Treat identity changes as remove/add instead of mutable-state updates.
-- Prevent equivalent custom-key representations from becoming false updates.
-- Add nested change scenario coverage with flattened Delta paths.
-- Add compensating-operation Delta coverage without introducing workflow policy into Forge.
-
-## 0.3.0-preview.1
-
-- Harden Sync around explicit logical identity.
-- Generate a strongly typed public key for every synchronizer.
-- Add `[SyncKeyComparer]` for per-key custom equality.
-- Use identical key equality for reconciliation, duplicate detection and exposed keys.
-- Replace raw add/remove/unchanged values with operation records carrying logical keys.
-- Snapshot all plan collections before exposing them.
-- Add current/desired item counts to reconciliation plans.
-- Cover delete-to-empty, ordering, duplicate custom keys and custom-key diagnostics.
-
-## 0.1.0-preview.2
-
-- Add semantic nested generated deltas.
-- Flatten nested changes into paths such as `Address.City`.
-- Avoid reference-identity false positives for nested Forge models.
-- Add nullable nested reference and nullable nested struct handling.
-- Add `[DeltaComparer]` with compile-time comparer validation.
-- Add inherited public property support to Delta.
-- Add inherited key-property support to Sync.
-- Keep custom comparer instances cached in generated static fields.
-- Expand Delta, Sync and generator edge-case tests.
-- Keep the Delta analyzer available through the Forge.Sync package dependency.
-
-## 0.1.0-preview.1
-
-- Initial Delta source generator.
-- Initial keyed Sync reconciliation source generator.
-- Add composite keys and duplicate-key detection.
-- Add runtime tests, generator tests, samples, benchmarks and CI.
