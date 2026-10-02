@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,6 +36,20 @@ def verify_local_assets(html: str, source: str) -> None:
         path = DOCS / target
         if not path.exists():
             fail(f"{source} references missing local {attribute}: {value}")
+
+
+def verify_javascript(path: Path) -> None:
+    result = subprocess.run(
+        ["node", "--check", str(path)],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if result.returncode != 0:
+        detail = (result.stderr or result.stdout).strip()
+        fail(f"JavaScript syntax validation failed for {path.relative_to(ROOT)}: {detail}")
 
 
 def main() -> None:
@@ -81,6 +96,8 @@ def main() -> None:
     require_contains(readme, "Which valid course of action should become the plan", "README.md")
 
     verify_local_assets(decide, "docs/decide.html")
+    verify_javascript(DOCS / "script.js")
+    verify_javascript(DOCS / "decide.js")
 
     print("Forge documentation and Forge.Decide website validation passed.")
 
