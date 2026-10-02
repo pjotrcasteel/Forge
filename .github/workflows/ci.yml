@@ -31,6 +31,9 @@ jobs:
       - name: Test
         run: dotnet test Forge.slnx -c Release --no-build
 
+      - name: Validate website and documentation
+        run: python eng/verify_docs.py
+
       - name: Run Forge.Decide sample
         run: dotnet run --project samples/Forge.Decide.Sample/Forge.Decide.Sample.csproj -c Release --no-build
 
