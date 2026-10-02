@@ -1,6 +1,6 @@
 # Forge
 
-> Strongly typed state transitions and structured test expectations for .NET 10.
+> Strongly typed state transitions, explainable strategy decisions and structured test expectations for .NET 10.
 
 Forge is an MIT-licensed .NET library family by Pjotr Casteel.
 
@@ -17,13 +17,22 @@ Canonical repository: https://github.com/pjotrcasteel/Forge
   - NuGet: https://www.nuget.org/packages/Forge.Parse
 - Forge.Parse.Reqnroll — optional Reqnroll DataTable adapter over Forge.Parse.
   - NuGet: https://www.nuget.org/packages/Forge.Parse.Reqnroll
+- Forge.Decide — typed strategy spaces, side-effect-free proposals, deterministic selection, explanations, shadow decisions, receipts and evidence diffing.
+  - NuGet: https://www.nuget.org/packages/Forge.Decide
+- Forge.Decide.Testing — framework-neutral scenario matrices for finding uncovered and ambiguous decision contexts.
+  - NuGet: https://www.nuget.org/packages/Forge.Decide.Testing
+- Forge.Decide.DependencyInjection — explicit Microsoft.Extensions.DependencyInjection adapter for typed strategy spaces; no assembly scanning.
+  - NuGet: https://www.nuget.org/packages/Forge.Decide.DependencyInjection
+- Forge.Decide.OpenTelemetry — ActivitySource instrumentation for Decide without owning OpenTelemetry providers or exporters.
+  - NuGet: https://www.nuget.org/packages/Forge.Decide.OpenTelemetry
 
 Current family version: 1.20.0
 
 ## Core boundary
 
-Forge calculates, classifies, validates, explains and simulates transitions.
+Forge calculates, classifies, validates, explains and simulates transitions and decisions.
 Forge does not persist state, call external systems, publish messages, authorize actions or execute plans.
+Forge.Decide owns decision mechanics; the consumer owns domain meaning, authority and side effects.
 
 ## Start here
 
@@ -31,7 +40,9 @@ Forge does not persist state, call external systems, publish messages, authorize
 - API contract: https://github.com/pjotrcasteel/Forge/blob/main/docs/API_CONTRACT.md
 - Design: https://github.com/pjotrcasteel/Forge/blob/main/docs/DESIGN.md
 - Reconciliation: https://github.com/pjotrcasteel/Forge/blob/main/docs/RECONCILIATION.md
-- Production rollout story: https://pjotrcasteel.github.io/Forge/service-provisioning.html
+- Forge.Decide functionality page: https://pjotrcasteel.github.io/Forge/decide.html
+- Forge.Decide runnable sample: https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.Decide.Sample
+- Forge.Sync production rollout story: https://pjotrcasteel.github.io/Forge/service-provisioning.html
 - Production-style distributed rollout example: https://github.com/pjotrcasteel/Forge/tree/main/samples/Forge.ServiceProvisioning.Sample
 - Generic rollout dogfood: https://github.com/pjotrcasteel/Forge/blob/main/docs/GENERIC_DISTRIBUTED_ROLLOUT.md
 
@@ -40,8 +51,13 @@ Forge does not persist state, call external systems, publish messages, authorize
 - Delta answers: what changed inside one object?
 - Sync answers: how do keyed current and desired collections differ?
 - Parse answers: does dynamic structured output satisfy the expectation that matters?
+- Decide answers: which valid course of action should become the plan, and why?
+- A Decide strategy space is a hard candidate boundary. Strategies outside the space are not evaluated.
+- Decide strategies propose application-owned plans without executing them.
+- Decide evaluates proposals before selection so production and shadow policies can operate on the same frozen evidence.
+- Decide does not silently resolve ambiguity by registration order; the default requires exactly one applicable proposal.
 - Replace means complete desired state; current-only items may be removed.
 - Upsert means partial desired input; current-only items are preserved.
 - Generated normal hot paths use direct property access rather than runtime reflection.
 - Logical keys, execution states, facts, reasons, approval scopes and invariant violations remain consumer CLR types.
-- Portable manifests are data, not executable code.
+- Portable manifests and decision receipts are data, not executable code.
