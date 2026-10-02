@@ -2,7 +2,7 @@
 
 > Typed, explainable strategy decisions that produce application-owned plans before side effects begin.
 
-**Website:** https://pjotrcasteel.github.io/Forge/ · **NuGet:** https://www.nuget.org/packages/Forge.Decide · **Source:** https://github.com/pjotrcasteel/Forge
+**Functionality guide:** https://pjotrcasteel.github.io/Forge/decide.html · **Website:** https://pjotrcasteel.github.io/Forge/ · **NuGet:** https://www.nuget.org/packages/Forge.Decide · **Source:** https://github.com/pjotrcasteel/Forge
 
 Forge.Decide is for applications that have several legitimate ways to handle a problem but need to control which strategies may compete, explain why a strategy applies, and produce a reviewable plan before execution.
 
@@ -195,6 +195,16 @@ var decisionDiff = StrategyDecisionDiff.Between(
 decisionDiff.SelectionChanged;
 decisionDiff.Evidence;
 ```
+
+## Optional packages
+
+Keep the core small and add only the edges you need:
+
+- **Forge.Decide.Testing** — framework-neutral scenario matrices for uncovered and ambiguous contexts.
+- **Forge.Decide.DependencyInjection** — explicit typed-space construction through Microsoft.Extensions.DependencyInjection; no assembly scanning.
+- **Forge.Decide.OpenTelemetry** — standard .NET `ActivitySource` instrumentation without owning providers or exporters.
+
+The neutral runnable example is available in `samples/Forge.Decide.Sample`.
 
 ## Boundary
 
